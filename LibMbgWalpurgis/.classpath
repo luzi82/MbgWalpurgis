@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="testsrc"/>
+	<classpathentry kind="src" path="dep/commons-codec-1.7-src/src/main/java"/>
+	<classpathentry excluding="org/apache/commons/logging/impl/AvalonLogger.java|org/apache/commons/logging/impl/Jdk13LumberjackLogger.java|org/apache/commons/logging/impl/Jdk14Logger.java|org/apache/commons/logging/impl/Log4JLogger.java|org/apache/commons/logging/impl/LogKitLogger.java|org/apache/commons/logging/impl/ServletContextCleaner.java|org/apache/commons/logging/impl/WeakHashtable.java|org/apache/commons/logging/impl/package.html" kind="src" path="dep/commons-logging-1.1.1-src/src/java"/>
+	<classpathentry kind="src" path="dep/httpcomponents-client-4.2.3/httpclient/src/main/java"/>
+	<classpathentry kind="src" path="dep/httpcomponents-core-4.2.3/httpcore/src/main/java"/>
+	<classpathentry kind="src" path="dep/jsoup/src/main/java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

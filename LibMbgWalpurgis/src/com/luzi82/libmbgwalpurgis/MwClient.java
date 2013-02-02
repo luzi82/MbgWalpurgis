@@ -1,0 +1,301 @@
+package com.luzi82.libmbgwalpurgis;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.Executor;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.ProtocolException;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.params.HttpClientParams;
+import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.DefaultRedirectStrategy;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.params.HttpParams;
+import org.apache.http.protocol.HttpContext;
+import org.apache.http.util.EntityUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+public class MwClient implements IMwClient {
+
+	final Executor mExecutor;
+
+	public MwClient(Executor aExecutor) {
+		mExecutor = aExecutor;
+	}
+
+	@Override
+	public void connect(String aLoginId, String aPassword, ICallback<Void> aCallback, ICallback<Exception> aException) {
+		mClientState.connect(aLoginId, aPassword, aCallback, aException);
+	}
+
+	@Override
+	public void disconnect(ICallback<Void> aCallback) {
+		mClientState.disconnect(aCallback);
+	}
+
+	@Override
+	public String getLoginId() {
+		return mClientState.getLoginId();
+	}
+
+	@Override
+	public State getState() {
+		return mClientState.getState();
+	}
+
+	public ICallback<State> mStateChangeCallback;
+
+	@Override
+	public void setStateChangeCallback(ICallback<State> aCallback) {
+		mClientState.setStateChangeCallback(aCallback);
+	}
+
+	public void notifyChangeCallback() {
+		Utils.startCallback(mStateChangeCallback, mClientState.getState(), mExecutor);
+	}
+
+	public abstract class MwClientState implements IMwClient {
+
+		public final State mState;
+		public final String mLoginId;
+
+		public MwClientState(State aState, String aLoginId) {
+			mState = aState;
+			mLoginId = aLoginId;
+		}
+
+		@Override
+		public void connect(String aLoginId, String aPassword, ICallback<Void> aCallback, ICallback<Exception> aException) {
+			Utils.startCallback(aException, new IllegalStateException(), mExecutor);
+		}
+
+		@Override
+		public String getLoginId() {
+			return null;
+		}
+
+		@Override
+		public final State getState() {
+			return mState;
+		}
+
+		@Override
+		public final void setStateChangeCallback(ICallback<State> aCallback) {
+			mStateChangeCallback = aCallback;
+		}
+
+	}
+
+	MwClientState mClientState = new MwClientStateOffline();
+
+	public class MwClientStateOffline extends MwClientState {
+
+		public MwClientStateOffline() {
+			super(State.OFFLINE, null);
+		}
+
+		@Override
+		public void connect(String aLoginId, String aPassword, ICallback<Void> aCallback, ICallback<Exception> aException) {
+			MwClientStateConnecting state = new MwClientStateConnecting(aLoginId, aPassword, aCallback, aException);
+			mClientState = state;
+			notifyChangeCallback();
+			state.startProcess();
+		}
+
+		@Override
+		public void disconnect(final ICallback<Void> aCallback) {
+			Utils.startCallback(aCallback, null, mExecutor);
+		}
+
+	}
+
+	public class MwClientStateOnline extends MwClientState {
+
+		public MwClientStateOnline(HttpClient aHttpClient, String aLoginId) {
+			super(State.ONLINE, aLoginId);
+		}
+
+		@Override
+		public void disconnect(final ICallback<Void> aCallback) {
+			MwClientStateDisconnecting state = new MwClientStateDisconnecting(aCallback);
+			mClientState = state;
+			notifyChangeCallback();
+			state.startProcess();
+		}
+
+	}
+
+	public class MwClientStateConnecting extends MwClientState {
+		final public String mPassword;
+		final public ICallback<Void> mCallback;
+		final public ICallback<Exception> mExceptionCallback;
+		public HttpClient mHttpClient;
+
+		public MwClientStateConnecting(String aLoginId, String aPassword, ICallback<Void> aCallback, ICallback<Exception> aException) {
+			super(State.CONNECTING, aLoginId);
+			mPassword = aPassword;
+			mCallback = aCallback;
+			mExceptionCallback = aException;
+		}
+
+		public void startProcess() {
+			mExecutor.execute(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						mHttpClient = createHttpClient();
+						if (login(mHttpClient, mLoginId, mPassword)) {
+							mClientState = new MwClientStateOnline(mHttpClient, mLoginId);
+							notifyChangeCallback();
+							Utils.startCallback(mCallback, null, mExecutor);
+						} else {
+							mClientState = new MwClientStateOffline();
+							notifyChangeCallback();
+							Utils.startCallback(mExceptionCallback, new Exception("login fail"), mExecutor);
+						}
+					} catch (Exception e) {
+						mClientState = new MwClientStateOffline();
+						notifyChangeCallback();
+						Utils.startCallback(mExceptionCallback, e, mExecutor);
+					}
+				}
+			});
+		}
+
+		@Override
+		public void disconnect(final ICallback<Void> aCallback) {
+			throw new IllegalStateException();
+		}
+
+	}
+
+	public class MwClientStateDisconnecting extends MwClientState {
+
+		final ICallback<Void> mCallback;
+
+		public MwClientStateDisconnecting(ICallback<Void> aCallback) {
+			super(State.DISCONNECING, null);
+			mCallback = aCallback;
+		}
+
+		public void startProcess() {
+			mExecutor.execute(new Runnable() {
+				@Override
+				public void run() {
+					mClientState = new MwClientStateOffline();
+					notifyChangeCallback();
+					Utils.startCallback(mCallback, null, mExecutor);
+				}
+			});
+		}
+
+		@Override
+		public void disconnect(final ICallback<Void> aCallback) {
+			// TODO
+			throw new IllegalStateException();
+		}
+
+	}
+
+	protected static HttpClient createHttpClient() {
+		HttpParams httpParams = new BasicHttpParams();
+		httpParams.setParameter(CoreProtocolPNames.USER_AGENT, "Mozilla/5.0 (Linux; U; Android 4.0.2; en-us; Galaxy Nexus Build/ICL53F) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30");
+		HttpClientParams.setRedirecting(httpParams, true);
+		DefaultHttpClient httpClient = new DefaultHttpClient(httpParams);
+		httpClient.setRedirectStrategy(new DefaultRedirectStrategy() {
+			@Override
+			public boolean isRedirected(HttpRequest request, HttpResponse response, HttpContext context) throws ProtocolException {
+				if (super.isRedirected(request, response, context))
+					return true;
+				int code = response.getStatusLine().getStatusCode();
+				if (code == 302)
+					return true;
+				return false;
+			}
+		});
+		return httpClient;
+	}
+
+	protected boolean login(HttpClient aHttpClient, String aLoginId, String aPassword) throws ClientProtocolException, IOException {
+		HttpGet httpGet = new HttpGet("https://ssl.sp.mbga.jp/_lg");
+		HttpResponse response = aHttpClient.execute(httpGet);
+		if (response.getStatusLine().getStatusCode() != 200)
+			return false;
+
+		HttpEntity httpEntity = response.getEntity();
+		String contentType = httpEntity.getContentType().getValue();
+		if (!contentType.equals("text/html; charset=UTF-8")) {
+			return false;
+		}
+
+		InputStream is = httpEntity.getContent();
+		Document doc = Jsoup.parse(is, "UTF-8", "https://ssl.sp.mbga.jp/_lg");
+		EntityUtils.consume(httpEntity);
+
+		Elements formElements = doc.select("form[action*=https://ssl.sp.mbga.jp/_lg]");
+		if (formElements.size() != 1)
+			return false;
+		Element formElement = formElements.get(0);
+
+		Elements inputElements = formElement.select("input");
+		if (inputElements.select("[name*=login_id]").size() != 1)
+			return false;
+		if (inputElements.select("[name*=login_pw]").size() != 1)
+			return false;
+		if (inputElements.select("[type*=submit]").size() != 1)
+			return false;
+		for (Element inputElement : inputElements) {
+			String type = inputElement.attr("type");
+			if (type.equals("hidden"))
+				continue;
+			if ((type.equals("email")) && (inputElement.id().equals("login_id")))
+				continue;
+			if ((type.equals("password")) && (inputElement.id().equals("login_pw")))
+				continue;
+			if (type.equals("submit"))
+				continue;
+			return false;
+		}
+
+		HttpPost httpPost = new HttpPost("https://ssl.sp.mbga.jp/_lg");
+		List<NameValuePair> nvpList = new LinkedList<NameValuePair>();
+		nvpList.add(new BasicNameValuePair("login_id", aLoginId));
+		nvpList.add(new BasicNameValuePair("login_pw", aPassword));
+		Elements hiddenInputElements = formElement.select("[type*=hidden]");
+		for (Element hiddenInputElement : hiddenInputElements) {
+			nvpList.add(new BasicNameValuePair(hiddenInputElement.attr("name"), hiddenInputElement.attr("value")));
+		}
+		Element submitElement = inputElements.select("[type*=submit]").get(0);
+		nvpList.add(new BasicNameValuePair(submitElement.attr("name"), submitElement.attr("value")));
+		StringEntity entity = new StringEntity(URLEncodedUtils.format(nvpList, "UTF-8"));
+		httpPost.setEntity(entity);
+		response = aHttpClient.execute(httpPost);
+		EntityUtils.consume(response.getEntity());
+		if (response.getStatusLine().getStatusCode() != 200)
+			return false;
+
+		httpGet = new HttpGet("http://sp.pf.mbga.jp/12012090");
+		response = aHttpClient.execute(httpGet);
+		EntityUtils.consume(response.getEntity());
+		if (response.getStatusLine().getStatusCode() != 200)
+			return false;
+
+		return true;
+	}
+}

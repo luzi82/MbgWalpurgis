@@ -7,6 +7,8 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import junit.framework.Assert;
 
@@ -197,6 +199,61 @@ public class HttpClientTest {
 
 				tn = (TextNode) chileNodes.get(7);
 				System.out.println(tn.text().trim());
+			}
+
+			httpGet = new HttpGet("http://sp.pf.mbga.jp/12012090/?url=http%3A%2F%2Fmadoka2.sp.nextory.co.jp%2Fmypage.php");
+			response = httpClient.execute(httpGet);
+			System.out.println(response.getStatusLine());
+			Assert.assertEquals(200, response.getStatusLine().getStatusCode());
+
+			httpEntity = response.getEntity();
+			is = httpEntity.getContent();
+			doc = Jsoup.parse(is, "UTF-8", "http://sp.pf.mbga.jp/12012090/?url=http%3A%2F%2Fmadoka2.sp.nextory.co.jp%2Fmypage.php");
+
+			Elements mainStatusElement = doc.select("div[class*=main-status] span");
+			for (Element e : mainStatusElement) {
+				String t = e.ownText().trim();
+				if (!t.contains("でレベルアップ"))
+					continue;
+				Elements eev = e.select("span");
+				if (eev.size() != 2)
+					continue;
+				t = eev.get(1).ownText().trim();
+				t = t.replaceAll(Pattern.quote(","), "");
+				System.out.println(Integer.parseInt(t));
+			}
+
+			Elements cardElements = doc.select("div[class*=status-exsample] td div");
+			for (Element e : cardElements) {
+				Elements eas = e.select("a");
+				if (eas.size() != 1)
+					continue;
+				Element ea = eas.get(0);
+				if (!ea.attr("href").contains("card_list"))
+					continue;
+				Elements ess = ea.select("span");
+				if (ess.size() != 1)
+					continue;
+				System.out.println(ess.get(0).ownText().trim());
+				System.out.println(e.ownText().trim().replaceAll(Pattern.quote("/"), ""));
+			}
+
+			Pattern lpPattern = Pattern.compile("LP:([\\d]+)/([\\d]+)");
+			Pattern bpPattern = Pattern.compile("BP:([\\d]+)/([\\d]+)");
+			Elements mmlElements = doc.select("span[class*=mypage-mode-label]");
+			for (Element e : mmlElements) {
+				String t = e.ownText().trim();
+				Matcher m;
+				m = lpPattern.matcher(t);
+				if (m.find()) {
+					System.out.println(m.group(1));
+					System.out.println(m.group(2));
+				}
+				m = bpPattern.matcher(t);
+				if (m.find()) {
+					System.out.println(m.group(1));
+					System.out.println(m.group(2));
+				}
 			}
 
 		} catch (Exception e) {

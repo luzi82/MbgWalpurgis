@@ -260,70 +260,72 @@ public class MwClient implements IMwClient {
 	}
 
 	protected boolean login(HttpClient aHttpClient, String aLoginId, String aPassword) throws ClientProtocolException, IOException {
-		HttpGet httpGet = new HttpGet("https://ssl.sp.mbga.jp/_lg");
-		HttpResponse response = aHttpClient.execute(httpGet);
-		if (response.getStatusLine().getStatusCode() != 200)
-			return false;
+		synchronized (aHttpClient) {
+			HttpGet httpGet = new HttpGet("https://ssl.sp.mbga.jp/_lg");
+			HttpResponse response = aHttpClient.execute(httpGet);
+			if (response.getStatusLine().getStatusCode() != 200)
+				return false;
 
-		HttpEntity httpEntity = response.getEntity();
-		String contentType = httpEntity.getContentType().getValue();
-		if (!contentType.equals("text/html; charset=UTF-8")) {
-			return false;
+			HttpEntity httpEntity = response.getEntity();
+			String contentType = httpEntity.getContentType().getValue();
+			if (!contentType.equals("text/html; charset=UTF-8")) {
+				return false;
+			}
+
+			InputStream is = httpEntity.getContent();
+			Document doc = Jsoup.parse(is, "UTF-8", "https://ssl.sp.mbga.jp/_lg");
+			EntityUtils.consume(httpEntity);
+
+			Elements formElements = doc.select("form[action*=https://ssl.sp.mbga.jp/_lg]");
+			if (formElements.size() != 1)
+				return false;
+			Element formElement = formElements.get(0);
+
+			Elements inputElements = formElement.select("input");
+			if (inputElements.select("[name*=login_id]").size() != 1)
+				return false;
+			if (inputElements.select("[name*=login_pw]").size() != 1)
+				return false;
+			if (inputElements.select("[type*=submit]").size() != 1)
+				return false;
+			for (Element inputElement : inputElements) {
+				String type = inputElement.attr("type");
+				if (type.equals("hidden"))
+					continue;
+				if ((type.equals("email")) && (inputElement.id().equals("login_id")))
+					continue;
+				if ((type.equals("password")) && (inputElement.id().equals("login_pw")))
+					continue;
+				if (type.equals("submit"))
+					continue;
+				return false;
+			}
+
+			HttpPost httpPost = new HttpPost("https://ssl.sp.mbga.jp/_lg");
+			List<NameValuePair> nvpList = new LinkedList<NameValuePair>();
+			nvpList.add(new BasicNameValuePair("login_id", aLoginId));
+			nvpList.add(new BasicNameValuePair("login_pw", aPassword));
+			Elements hiddenInputElements = formElement.select("[type*=hidden]");
+			for (Element hiddenInputElement : hiddenInputElements) {
+				nvpList.add(new BasicNameValuePair(hiddenInputElement.attr("name"), hiddenInputElement.attr("value")));
+			}
+			Element submitElement = inputElements.select("[type*=submit]").get(0);
+			nvpList.add(new BasicNameValuePair(submitElement.attr("name"), submitElement.attr("value")));
+			StringEntity entity = new StringEntity(URLEncodedUtils.format(nvpList, "UTF-8"));
+			httpPost.setEntity(entity);
+			response = aHttpClient.execute(httpPost);
+			EntityUtils.consume(response.getEntity());
+			if (response.getStatusLine().getStatusCode() != 200)
+				return false;
+
+			httpGet = new HttpGet("http://sp.pf.mbga.jp/12012090");
+			response = aHttpClient.execute(httpGet);
+			EntityUtils.consume(response.getEntity());
+			if (response.getStatusLine().getStatusCode() != 200)
+				return false;
+
+			return true;
 		}
-
-		InputStream is = httpEntity.getContent();
-		Document doc = Jsoup.parse(is, "UTF-8", "https://ssl.sp.mbga.jp/_lg");
-		EntityUtils.consume(httpEntity);
-
-		Elements formElements = doc.select("form[action*=https://ssl.sp.mbga.jp/_lg]");
-		if (formElements.size() != 1)
-			return false;
-		Element formElement = formElements.get(0);
-
-		Elements inputElements = formElement.select("input");
-		if (inputElements.select("[name*=login_id]").size() != 1)
-			return false;
-		if (inputElements.select("[name*=login_pw]").size() != 1)
-			return false;
-		if (inputElements.select("[type*=submit]").size() != 1)
-			return false;
-		for (Element inputElement : inputElements) {
-			String type = inputElement.attr("type");
-			if (type.equals("hidden"))
-				continue;
-			if ((type.equals("email")) && (inputElement.id().equals("login_id")))
-				continue;
-			if ((type.equals("password")) && (inputElement.id().equals("login_pw")))
-				continue;
-			if (type.equals("submit"))
-				continue;
-			return false;
-		}
-
-		HttpPost httpPost = new HttpPost("https://ssl.sp.mbga.jp/_lg");
-		List<NameValuePair> nvpList = new LinkedList<NameValuePair>();
-		nvpList.add(new BasicNameValuePair("login_id", aLoginId));
-		nvpList.add(new BasicNameValuePair("login_pw", aPassword));
-		Elements hiddenInputElements = formElement.select("[type*=hidden]");
-		for (Element hiddenInputElement : hiddenInputElements) {
-			nvpList.add(new BasicNameValuePair(hiddenInputElement.attr("name"), hiddenInputElement.attr("value")));
-		}
-		Element submitElement = inputElements.select("[type*=submit]").get(0);
-		nvpList.add(new BasicNameValuePair(submitElement.attr("name"), submitElement.attr("value")));
-		StringEntity entity = new StringEntity(URLEncodedUtils.format(nvpList, "UTF-8"));
-		httpPost.setEntity(entity);
-		response = aHttpClient.execute(httpPost);
-		EntityUtils.consume(response.getEntity());
-		if (response.getStatusLine().getStatusCode() != 200)
-			return false;
-
-		httpGet = new HttpGet("http://sp.pf.mbga.jp/12012090");
-		response = aHttpClient.execute(httpGet);
-		EntityUtils.consume(response.getEntity());
-		if (response.getStatusLine().getStatusCode() != 200)
-			return false;
-
-		return true;
 	}
 
 	protected void httpDoc(final HttpClient aHttpClient, final HttpUriRequest aHttpUriRequest, final ICallback<Document> aCallback, final ICallback<Exception> aExceptionCallback) {
@@ -331,16 +333,18 @@ public class MwClient implements IMwClient {
 			@Override
 			public void run() {
 				try {
-					HttpResponse response = aHttpClient.execute(aHttpUriRequest);
-					Utils.parseCheck(200, response.getStatusLine().getStatusCode());
+					synchronized (aHttpClient) {
+						HttpResponse response = aHttpClient.execute(aHttpUriRequest);
+						Utils.parseCheck(200, response.getStatusLine().getStatusCode());
 
-					HttpEntity httpEntity = response.getEntity();
-					String contentType = httpEntity.getContentType().getValue();
-					Utils.parseCheck("text/html; charset=UTF-8", contentType);
-					InputStream is = httpEntity.getContent();
-					Document doc = Jsoup.parse(is, "UTF-8", aHttpUriRequest.getURI().toString());
-					EntityUtils.consume(httpEntity);
-					Utils.startCallback(aCallback, doc, mExecutor);
+						HttpEntity httpEntity = response.getEntity();
+						String contentType = httpEntity.getContentType().getValue();
+						Utils.parseCheck("text/html; charset=UTF-8", contentType);
+						InputStream is = httpEntity.getContent();
+						Document doc = Jsoup.parse(is, "UTF-8", aHttpUriRequest.getURI().toString());
+						EntityUtils.consume(httpEntity);
+						Utils.startCallback(aCallback, doc, mExecutor);
+					}
 				} catch (Exception e) {
 					Utils.startCallback(aExceptionCallback, e, mExecutor);
 				}

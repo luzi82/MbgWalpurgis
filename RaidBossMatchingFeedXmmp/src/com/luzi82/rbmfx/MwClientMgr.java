@@ -22,8 +22,9 @@ public class MwClientMgr {
 	final String mPassword;
 	final LinkedList<RaidBossMatchingFeed.Unit> mHistory = new LinkedList<RaidBossMatchingFeed.Unit>();
 
-	public MwClientMgr(String aLoginId, String aPassword) {
-		mExecutor = new ScheduledThreadPoolExecutor(10);
+	public MwClientMgr(ScheduledThreadPoolExecutor aExecutor, String aLoginId,
+			String aPassword) {
+		mExecutor = aExecutor;
 		mMwClient = new MwClient(mExecutor);
 		mLoginId = aLoginId;
 		mPassword = aPassword;
@@ -43,7 +44,6 @@ public class MwClientMgr {
 			mMwClient.getFeed(new ICallback<RaidBossMatchingFeed>() {
 				@Override
 				public void callback(RaidBossMatchingFeed aResult) {
-					System.err.println("feed get");
 					Iterator<RaidBossMatchingFeed.Unit> itr = aResult.mUnitList
 							.descendingIterator();
 					while (itr.hasNext()) {
@@ -101,7 +101,8 @@ public class MwClientMgr {
 			props.load(authFileIn);
 			authFileIn.close();
 
-			MwClientMgr main = new MwClientMgr(props.getProperty("login_id"),
+			MwClientMgr main = new MwClientMgr(new ScheduledThreadPoolExecutor(
+					10), props.getProperty("login_id"),
 					props.getProperty("login_pw"));
 			main.setUnitCallback(new ICallback<RaidBossMatchingFeed.Unit>() {
 				@Override

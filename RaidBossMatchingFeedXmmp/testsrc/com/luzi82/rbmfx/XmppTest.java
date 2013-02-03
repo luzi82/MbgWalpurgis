@@ -39,6 +39,7 @@ public class XmppTest {
 					});
 			chat.sendMessage("HelloWorld");
 			chat.sendMessage("http://www.yahoo.com.hk");
+			chat.sendMessage("A\nhttp://www.yahoo.com.hk");
 			conn.disconnect();
 		} catch (Exception e) {
 			e.printStackTrace();

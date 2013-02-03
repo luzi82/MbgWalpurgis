@@ -47,6 +47,33 @@ public abstract class AbstractMwClientTest {
 		Assert.assertEquals(IMwClient.State.OFFLINE, client.getState());
 	}
 
+	@Test
+	public void testGetFeed() {
+		// newMmClient()
+		IMwClient client = newMmClient();
+		CallCount<IMwClient.State> stateChange = new CallCount<IMwClient.State>();
+		client.setStateChangeCallback(stateChange);
+
+		// IMmClient.connect
+		CallWait<Void> connectWait = new CallWait<Void>();
+		client.connect(getLoginId(), getPassword(), connectWait.newCallback(), connectWait.newExceptionHandler());
+		Assert.assertTrue(connectWait.waitDone());
+		Assert.assertEquals(IMwClient.State.ONLINE, client.getState());
+
+		// IMmClient.getFeed
+		CallWait<RaidBossMatchingFeed> feedWait = new CallWait<RaidBossMatchingFeed>();
+		client.getFeed(feedWait.newCallback(), feedWait.newExceptionHandler());
+		Assert.assertTrue(feedWait.waitDone());
+		RaidBossMatchingFeed feed = feedWait.mCallbackReturn;
+		if (feed.mUnitList.size() >= 1) {
+			RaidBossMatchingFeed.Unit u = feed.mUnitList.get(0);
+			System.out.println(u.mSide);
+			System.out.println(u.mTime);
+			System.out.println(u.mPlayer);
+			System.out.println(u.mMessage);
+		}
+	}
+
 	protected abstract IMwClient newMmClient();
 
 	protected abstract String getLoginId();

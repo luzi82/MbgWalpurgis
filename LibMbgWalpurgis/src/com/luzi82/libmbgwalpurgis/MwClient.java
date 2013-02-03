@@ -15,6 +15,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.params.HttpClientParams;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.entity.StringEntity;
@@ -59,6 +60,11 @@ public class MwClient implements IMwClient {
 		return mClientState.getState();
 	}
 
+	@Override
+	public void getFeed(ICallback<RaidBossMatchingFeed> aCallback, ICallback<Exception> aExceptionCallback) {
+		mClientState.getFeed(aCallback, aExceptionCallback);
+	}
+
 	public ICallback<State> mStateChangeCallback;
 
 	@Override
@@ -100,6 +106,10 @@ public class MwClient implements IMwClient {
 			mStateChangeCallback = aCallback;
 		}
 
+		@Override
+		public void getFeed(ICallback<RaidBossMatchingFeed> aCallback, ICallback<Exception> aExceptionCallback) {
+			Utils.startCallback(aExceptionCallback, new IllegalStateException(), mExecutor);
+		}
 	}
 
 	MwClientState mClientState = new MwClientStateOffline();
@@ -127,8 +137,11 @@ public class MwClient implements IMwClient {
 
 	public class MwClientStateOnline extends MwClientState {
 
+		final HttpClient mHttpClient;
+
 		public MwClientStateOnline(HttpClient aHttpClient, String aLoginId) {
 			super(State.ONLINE, aLoginId);
+			mHttpClient = aHttpClient;
 		}
 
 		@Override
@@ -139,6 +152,20 @@ public class MwClient implements IMwClient {
 			state.startProcess();
 		}
 
+		@Override
+		public void getFeed(ICallback<RaidBossMatchingFeed> aCallback, final ICallback<Exception> aExceptionCallback) {
+			final AsynList asynList = new AsynList();
+			asynList.addCallback(new ICallback<Void>() {
+				@Override
+				public void callback(Void aV) {
+					HttpGet httpGet = new HttpGet("http://sp.pf.mbga.jp/12012090/?url=http%3A%2F%2Fmadoka2.sp.nextory.co.jp%2Fraid_boss_matching_feed.php");
+					httpDoc(mHttpClient, httpGet, asynList.createStartNextCallback(new Document[0]), aExceptionCallback);
+				}
+			});
+			asynList.addCallback(RaidBossMatchingFeed.toFeed(asynList.createStartNextCallback(new RaidBossMatchingFeed[0]), aExceptionCallback, mExecutor));
+			asynList.addCallback(aCallback);
+			asynList.start(mExecutor);
+		}
 	}
 
 	public class MwClientStateConnecting extends MwClientState {
@@ -297,5 +324,27 @@ public class MwClient implements IMwClient {
 			return false;
 
 		return true;
+	}
+
+	protected void httpDoc(final HttpClient aHttpClient, final HttpUriRequest aHttpUriRequest, final ICallback<Document> aCallback, final ICallback<Exception> aExceptionCallback) {
+		mExecutor.execute(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					HttpResponse response = aHttpClient.execute(aHttpUriRequest);
+					Utils.parseCheck(200, response.getStatusLine().getStatusCode());
+
+					HttpEntity httpEntity = response.getEntity();
+					String contentType = httpEntity.getContentType().getValue();
+					Utils.parseCheck("text/html; charset=UTF-8", contentType);
+					InputStream is = httpEntity.getContent();
+					Document doc = Jsoup.parse(is, "UTF-8", aHttpUriRequest.getURI().toString());
+					EntityUtils.consume(httpEntity);
+					Utils.startCallback(aCallback, doc, mExecutor);
+				} catch (Exception e) {
+					Utils.startCallback(aExceptionCallback, e, mExecutor);
+				}
+			}
+		});
 	}
 }

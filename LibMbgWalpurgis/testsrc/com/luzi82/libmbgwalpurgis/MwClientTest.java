@@ -30,14 +30,12 @@ public class MwClientTest extends AbstractMwClientTest {
 
 	@Override
 	protected String getLoginId() {
-		// TODO Auto-generated method stub
-		return null;
+		return props.getProperty("login_id");
 	}
 
 	@Override
 	protected String getPassword() {
-		// TODO Auto-generated method stub
-		return null;
+		return props.getProperty("login_pw");
 	}
 
 }

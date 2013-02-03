@@ -30,6 +30,7 @@ public class CallWait<T> {
 				synchronized (CallWait.this) {
 					mExceptionDone = true;
 					mException = aResult;
+					aResult.printStackTrace();
 					CallWait.this.notify();
 				}
 			}

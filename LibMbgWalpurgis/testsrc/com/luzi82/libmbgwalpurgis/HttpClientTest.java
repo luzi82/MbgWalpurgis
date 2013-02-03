@@ -32,6 +32,8 @@ import org.apache.http.protocol.HttpContext;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 import org.junit.Test;
 
@@ -126,18 +128,18 @@ public class HttpClientTest {
 				}
 				System.out.print(Arrays.copyOf(buf, len));
 			}
-			
-			CookieStore cookieStore=httpClient.getCookieStore();
-			List<Cookie> cookieList=cookieStore.getCookies();
-			for(Cookie cookie:cookieList){
-				System.out.println(cookie.getDomain()+":"+cookie.getName()+":"+cookie.getValue());
+
+			CookieStore cookieStore = httpClient.getCookieStore();
+			List<Cookie> cookieList = cookieStore.getCookies();
+			for (Cookie cookie : cookieList) {
+				System.out.println(cookie.getDomain() + ":" + cookie.getName() + ":" + cookie.getValue());
 			}
 
 			httpGet = new HttpGet("http://sp.pf.mbga.jp/12012090");
 			response = httpClient.execute(httpGet);
 			System.out.println(response.getStatusLine());
 			Assert.assertEquals(200, response.getStatusLine().getStatusCode());
-			
+
 			httpEntity = response.getEntity();
 			is = httpEntity.getContent();
 			isr = new InputStreamReader(is, "UTF-8");
@@ -153,16 +155,48 @@ public class HttpClientTest {
 			response = httpClient.execute(httpGet);
 			System.out.println(response.getStatusLine());
 			Assert.assertEquals(200, response.getStatusLine().getStatusCode());
-			
+
 			httpEntity = response.getEntity();
 			is = httpEntity.getContent();
-			isr = new InputStreamReader(is, "UTF-8");
-			while (true) {
-				int len = isr.read(buf);
-				if (len == -1) {
-					break;
+			doc = Jsoup.parse(is, "UTF-8", "http://sp.pf.mbga.jp/12012090/?url=http%3A%2F%2Fmadoka2.sp.nextory.co.jp%2Fraid_boss_matching_feed.php");
+
+			Elements unitElements = doc.select("div[class*=basic-bg] td[valign*=top]");
+			for (Element unitElement : unitElements) {
+				List<Node> chileNodes = unitElement.childNodes();
+				for (int i = 0; i < chileNodes.size(); ++i) {
+					Node unitElementChild = chileNodes.get(i);
+					if (unitElementChild instanceof Element) {
+						Element unitElementChildElement = (Element) unitElementChild;
+						System.out.println(i + ": <" + unitElementChildElement.tagName() + ">");
+					} else if (unitElementChild instanceof TextNode) {
+						TextNode unitElementChildTextNode = (TextNode) unitElementChild;
+						String txt = unitElementChildTextNode.text();
+						txt = txt.trim();
+						if (!txt.isEmpty()) {
+							System.out.println(i + ": " + txt);
+						}
+					}
 				}
-				System.out.print(Arrays.copyOf(buf, len));
+				Assert.assertEquals(10, chileNodes.size());
+
+				Element e = (Element) chileNodes.get(1);
+				Assert.assertEquals("img", e.tagName());
+				String srcattr = e.attr("src");
+				System.out.println(srcattr);
+				Assert.assertTrue(srcattr.contains("icon01") || srcattr.contains("icon02"));
+
+				TextNode tn = (TextNode) chileNodes.get(2);
+				System.out.println(tn.text().trim());
+
+				e = (Element) chileNodes.get(5);
+				Assert.assertEquals("a", e.tagName());
+				Assert.assertEquals(1, e.children().size());
+				e = e.child(0);
+				Assert.assertEquals("span", e.tagName());
+				System.out.println(e.ownText().trim());
+
+				tn = (TextNode) chileNodes.get(7);
+				System.out.println(tn.text().trim());
 			}
 
 		} catch (Exception e) {

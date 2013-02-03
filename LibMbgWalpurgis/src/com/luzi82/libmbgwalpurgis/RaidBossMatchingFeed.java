@@ -25,14 +25,42 @@ public class RaidBossMatchingFeed {
 		public String mPlayer;
 
 		public String mMessage;
+
+		public void trace() {
+			System.err.println("side=" + mSide);
+			System.err.println("time=" + mTime);
+			System.err.println("player=" + mPlayer);
+			System.err.println("message=" + mMessage);
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (obj == null)
+				return false;
+			if (!(obj instanceof Unit))
+				return false;
+			Unit u = (Unit) obj;
+			if (!mSide.equals(u.mSide))
+				return false;
+			if (!mTime.equals(u.mTime))
+				return false;
+			if (!mPlayer.equals(u.mPlayer))
+				return false;
+			if (!mMessage.equals(u.mMessage))
+				return false;
+			return true;
+		}
+
 	}
 
-	final LinkedList<Unit> mUnitList = new LinkedList<RaidBossMatchingFeed.Unit>();
+	public final LinkedList<Unit> mUnitList = new LinkedList<RaidBossMatchingFeed.Unit>();
 
-	public static RaidBossMatchingFeed toFeed(Document aDoc) throws ParseException {
+	public static RaidBossMatchingFeed toFeed(Document aDoc)
+			throws ParseException {
 		RaidBossMatchingFeed ret = new RaidBossMatchingFeed();
 
-		Elements unitElements = aDoc.select("div[class*=basic-bg] td[valign*=top]");
+		Elements unitElements = aDoc
+				.select("div[class*=basic-bg] td[valign*=top]");
 		for (Element unitElement : unitElements) {
 			List<Node> chileNodes = unitElement.childNodes();
 			Unit u = new Unit();
@@ -43,7 +71,8 @@ public class RaidBossMatchingFeed {
 			Utils.parseCheck("img", e.tagName());
 			String srcattr = e.attr("src");
 
-			Utils.parseCheck(srcattr.contains("icon01") || srcattr.contains("icon02"));
+			Utils.parseCheck(srcattr.contains("icon01")
+					|| srcattr.contains("icon02"));
 			u.mSide = srcattr.contains("icon01") ? Side.ALLY : Side.ENEMY;
 
 			TextNode tn = (TextNode) chileNodes.get(2);
@@ -66,7 +95,9 @@ public class RaidBossMatchingFeed {
 		return ret;
 	}
 
-	public static ICallback<Document> toFeed(final ICallback<RaidBossMatchingFeed> aCallback, final ICallback<Exception> aException, final Executor aExecutor) {
+	public static ICallback<Document> toFeed(
+			final ICallback<RaidBossMatchingFeed> aCallback,
+			final ICallback<Exception> aException, final Executor aExecutor) {
 		return new ICallback<Document>() {
 			@Override
 			public void callback(Document aResult) {
@@ -77,6 +108,13 @@ public class RaidBossMatchingFeed {
 				}
 			}
 		};
+	}
+
+	public void trace() {
+		for (Unit u : mUnitList) {
+			u.trace();
+			System.err.println();
+		}
 	}
 
 }

@@ -74,6 +74,27 @@ public abstract class AbstractMwClientTest {
 		}
 	}
 
+	@Test
+	public void testGetStatus() {
+		// newMmClient()
+		IMwClient client = newMmClient();
+		CallCount<IMwClient.State> stateChange = new CallCount<IMwClient.State>();
+		client.setStateChangeCallback(stateChange);
+
+		// IMmClient.connect
+		CallWait<Void> connectWait = new CallWait<Void>();
+		client.connect(getLoginId(), getPassword(), connectWait.newCallback(), connectWait.newExceptionHandler());
+		Assert.assertTrue(connectWait.waitDone());
+		Assert.assertEquals(IMwClient.State.ONLINE, client.getState());
+
+		// IMmClient.getFeed
+		CallWait<PlayerStatus> statusWait = new CallWait<PlayerStatus>();
+		client.getStatus(statusWait.newCallback(), statusWait.newExceptionHandler());
+		Assert.assertTrue(statusWait.waitDone());
+		PlayerStatus status = statusWait.mCallbackReturn;
+		System.out.println(status.toString());
+	}
+
 	protected abstract IMwClient newMmClient();
 
 	protected abstract String getLoginId();

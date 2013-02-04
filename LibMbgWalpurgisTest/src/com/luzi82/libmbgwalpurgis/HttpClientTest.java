@@ -31,6 +31,7 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -77,6 +78,7 @@ public class HttpClientTest {
 
 			InputStream is = httpEntity.getContent();
 			Document doc = Jsoup.parse(is, "UTF-8", "https://ssl.sp.mbga.jp/_lg");
+			EntityUtils.consume(httpEntity);
 
 			Elements formElements = doc.select("form[action*=https://ssl.sp.mbga.jp/_lg]");
 			Assert.assertEquals(1, formElements.size());
@@ -130,6 +132,7 @@ public class HttpClientTest {
 				}
 				System.out.print(Arrays.copyOf(buf, len));
 			}
+			EntityUtils.consume(httpEntity);
 
 			CookieStore cookieStore = httpClient.getCookieStore();
 			List<Cookie> cookieList = cookieStore.getCookies();
@@ -152,6 +155,7 @@ public class HttpClientTest {
 				}
 				System.out.print(Arrays.copyOf(buf, len));
 			}
+			EntityUtils.consume(httpEntity);
 
 			httpGet = new HttpGet("http://sp.pf.mbga.jp/12012090/?url=http%3A%2F%2Fmadoka2.sp.nextory.co.jp%2Fraid_boss_matching_feed.php");
 			response = httpClient.execute(httpGet);
@@ -161,6 +165,7 @@ public class HttpClientTest {
 			httpEntity = response.getEntity();
 			is = httpEntity.getContent();
 			doc = Jsoup.parse(is, "UTF-8", "http://sp.pf.mbga.jp/12012090/?url=http%3A%2F%2Fmadoka2.sp.nextory.co.jp%2Fraid_boss_matching_feed.php");
+			EntityUtils.consume(httpEntity);
 
 			Elements unitElements = doc.select("div[class*=basic-bg] td[valign*=top]");
 			for (Element unitElement : unitElements) {
@@ -209,6 +214,7 @@ public class HttpClientTest {
 			httpEntity = response.getEntity();
 			is = httpEntity.getContent();
 			doc = Jsoup.parse(is, "UTF-8", "http://sp.pf.mbga.jp/12012090/?url=http%3A%2F%2Fmadoka2.sp.nextory.co.jp%2Fmypage.php");
+			EntityUtils.consume(httpEntity);
 
 			Elements mainStatusElement = doc.select("div[class*=main-status] span");
 			for (Element e : mainStatusElement) {

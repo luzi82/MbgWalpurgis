@@ -16,6 +16,8 @@ public interface IMwClient {
 
 	public void setStateChangeCallback(ICallback<State> aCallback);
 
-	public void getFeed(ICallback<RaidBossMatchingFeed> aCallback,ICallback<Exception> aExceptionCallback);
+	public void getFeed(ICallback<RaidBossMatchingFeed> aCallback, ICallback<Exception> aExceptionCallback);
+
+	public void getStatus(ICallback<PlayerStatus> aCallback, ICallback<Exception> aExceptionCallback);
 
 }

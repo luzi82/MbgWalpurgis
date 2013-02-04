@@ -65,6 +65,11 @@ public class MwClient implements IMwClient {
 		mClientState.getFeed(aCallback, aExceptionCallback);
 	}
 
+	@Override
+	public void getStatus(ICallback<PlayerStatus> aCallback, ICallback<Exception> aExceptionCallback) {
+		mClientState.getStatus(aCallback, aExceptionCallback);
+	}
+
 	public ICallback<State> mStateChangeCallback;
 
 	@Override
@@ -108,6 +113,11 @@ public class MwClient implements IMwClient {
 
 		@Override
 		public void getFeed(ICallback<RaidBossMatchingFeed> aCallback, ICallback<Exception> aExceptionCallback) {
+			Utils.startCallback(aExceptionCallback, new IllegalStateException(), mExecutor);
+		}
+
+		@Override
+		public void getStatus(ICallback<PlayerStatus> aCallback, ICallback<Exception> aExceptionCallback) {
 			Utils.startCallback(aExceptionCallback, new IllegalStateException(), mExecutor);
 		}
 	}
@@ -163,6 +173,21 @@ public class MwClient implements IMwClient {
 				}
 			});
 			asynList.addCallback(RaidBossMatchingFeed.toFeed(asynList.createStartNextCallback(new RaidBossMatchingFeed[0]), aExceptionCallback, mExecutor));
+			asynList.addCallback(aCallback);
+			asynList.start(mExecutor);
+		}
+
+		@Override
+		public void getStatus(ICallback<PlayerStatus> aCallback, final ICallback<Exception> aExceptionCallback) {
+			final AsynList asynList = new AsynList();
+			asynList.addCallback(new ICallback<Void>() {
+				@Override
+				public void callback(Void aV) {
+					HttpGet httpGet = new HttpGet("http://sp.pf.mbga.jp/12012090/?url=http%3A%2F%2Fmadoka2.sp.nextory.co.jp%2Fmypage.php");
+					httpDoc(mHttpClient, httpGet, asynList.createStartNextCallback(new Document[0]), aExceptionCallback);
+				}
+			});
+			asynList.addCallback(PlayerStatus.toStatus(asynList.createStartNextCallback(new PlayerStatus[0]), aExceptionCallback, mExecutor));
 			asynList.addCallback(aCallback);
 			asynList.start(mExecutor);
 		}
@@ -351,4 +376,5 @@ public class MwClient implements IMwClient {
 			}
 		});
 	}
+
 }

@@ -11,6 +11,9 @@ import org.jivesoftware.smack.MessageListener;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.packet.Message;
 
+import com.luzi82.libmbgwalpurgis.ICallback;
+import com.luzi82.libmbgwalpurgis.Utils;
+
 public class XmppMgr implements IXmppMgr {
 
 	final ScheduledThreadPoolExecutor mExecutor;
@@ -70,6 +73,10 @@ public class XmppMgr implements IXmppMgr {
 		public void processExit() {
 		}
 
+		@Override
+		public void setMessageCallback(ICallback<String> aMessage) {
+			mMessageCallback = aMessage;
+		}
 	}
 
 	public class StateOffOp extends StateOp {
@@ -109,7 +116,7 @@ public class XmppMgr implements IXmppMgr {
 					chat = conn.getChatManager().createChat(mTarget, new MessageListener() {
 						@Override
 						public void processMessage(Chat arg0, Message arg1) {
-							// do nothing
+							Utils.startCallback(mMessageCallback, arg1.getBody(), mExecutor);
 						}
 					});
 				}
@@ -191,6 +198,13 @@ public class XmppMgr implements IXmppMgr {
 	@Override
 	public boolean getEnabled() {
 		return mStateOp.getEnabled();
+	}
+
+	ICallback<String> mMessageCallback;
+
+	@Override
+	public void setMessageCallback(ICallback<String> aMessage) {
+		mStateOp.setMessageCallback(aMessage);
 	}
 
 }

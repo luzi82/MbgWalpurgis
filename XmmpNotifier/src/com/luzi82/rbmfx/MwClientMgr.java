@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Properties;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -29,6 +30,8 @@ public class MwClientMgr {
 	boolean mLastExpUp = false;
 	boolean mLastFullCard = false;
 
+	LinkedList<Long> mPollTime = new LinkedList<Long>();
+
 	public MwClientMgr(ScheduledThreadPoolExecutor aExecutor, String aLoginId, String aPassword) {
 		mExecutor = aExecutor;
 		mMwClient = new MwClient(mExecutor);
@@ -36,8 +39,19 @@ public class MwClientMgr {
 		mPassword = aPassword;
 	}
 
-	public void start() {
-		mExecutor.scheduleAtFixedRate(new MaintainRunnable(), 0, 15, TimeUnit.SECONDS);
+	ScheduledFuture<?> mMaintainScheduledFuture;
+
+	public synchronized void start() {
+		if (mMaintainScheduledFuture != null)
+			return;
+		mMaintainScheduledFuture = mExecutor.scheduleAtFixedRate(new MaintainRunnable(), 0, 15, TimeUnit.SECONDS);
+	}
+
+	public synchronized void stop() {
+		if (mMaintainScheduledFuture == null)
+			return;
+		mMaintainScheduledFuture.cancel(false);
+		mMaintainScheduledFuture = null;
 	}
 
 	long mLastRest = 0;
@@ -54,8 +68,10 @@ public class MwClientMgr {
 			mLastRest = 0;
 		}
 		if (state == State.OFFLINE) {
+			markPollTime();
 			mMwClient.connect(mLoginId, mPassword, new MaintainCallback<Void>(), new ExceptionCallback());
 		} else if (state == State.ONLINE) {
+			markPollTime();
 			mMwClient.getFeed(new ICallback<RaidBossMatchingFeed>() {
 				@Override
 				public void callback(RaidBossMatchingFeed aResult) {
@@ -75,6 +91,7 @@ public class MwClientMgr {
 				}
 			}, new ExceptionCallback());
 			if (!rest) {
+				markPollTime();
 				mMwClient.getStatus(new ICallback<PlayerStatus>() {
 					@Override
 					public void callback(PlayerStatus aResult) {
@@ -168,6 +185,35 @@ public class MwClientMgr {
 
 	public void setExceptionListener(ICallback<Exception> aExceptionListener) {
 		mExceptionListener = aExceptionListener;
+	}
+
+	public int getPollFreq() {
+		synchronized (mPollTime) {
+			trimPollTime();
+			return mPollTime.size();
+		}
+	}
+
+	public void markPollTime() {
+		long now = System.currentTimeMillis();
+		synchronized (mPollTime) {
+			mPollTime.addLast(now);
+			trimPollTime();
+		}
+	}
+
+	public void trimPollTime() {
+		synchronized (mPollTime) {
+			LinkedList<Long> rmList = new LinkedList<Long>();
+			long now = System.currentTimeMillis();
+			long limit = now - 60 * 1000;
+			for (long l : mPollTime) {
+				if (l < limit) {
+					rmList.add(l);
+				}
+			}
+			mPollTime.removeAll(rmList);
+		}
 	}
 
 	/**

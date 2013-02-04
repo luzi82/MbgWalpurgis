@@ -5,6 +5,7 @@ import java.util.Properties;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import com.luzi82.libmbgwalpurgis.ICallback;
+import com.luzi82.libmbgwalpurgis.PlayerStatus;
 import com.luzi82.libmbgwalpurgis.RaidBossMatchingFeed;
 import com.luzi82.libmbgwalpurgis.RaidBossMatchingFeed.Unit;
 
@@ -13,17 +14,30 @@ public class Main {
 	final IXmppMgr mXmpp;
 	final MwClientMgr mMw;
 
-	public Main(ScheduledThreadPoolExecutor aExecutor, String aMwLoginId,
-			String aMwPassword, String aXmppLoginId, String aXmppPassword,
-			String aTarget) {
+	public Main(ScheduledThreadPoolExecutor aExecutor, String aMwLoginId, String aMwPassword, String aXmppLoginId, String aXmppPassword, String aTarget) {
 		mXmpp = new XmppMgr(aExecutor, aXmppLoginId, aXmppPassword, aTarget);
 		mMw = new MwClientMgr(aExecutor, aMwLoginId, aMwPassword);
 		mMw.setUnitCallback(new ICallback<RaidBossMatchingFeed.Unit>() {
 			@Override
 			public void callback(Unit aResult) {
-				String msg = String.format("%s\n%s\n%s\n%s", aResult.mSide,
-						aResult.mTime, aResult.mPlayer, aResult.mMessage);
+				String msg = String.format("%s\n%s: %s\n%s\n", aResult.mTime, aResult.mSide, aResult.mPlayer, aResult.mMessage);
+				PlayerStatus ps = mMw.getLastPlayerStatus();
+				if (ps != null) {
+					msg += ps.toString();
+				}
 				mXmpp.send(msg);
+			}
+		});
+		mMw.setPlayerStatusCallback(new ICallback<PlayerStatus>() {
+			@Override
+			public void callback(PlayerStatus aResult) {
+				mXmpp.send(aResult.toString());
+			}
+		});
+		mMw.setExceptionListener(new ICallback<Exception>() {
+			@Override
+			public void callback(Exception aResult) {
+				mXmpp.send(aResult.toString());
 			}
 		});
 	}
@@ -41,12 +55,7 @@ public class Main {
 			props.load(authFileIn);
 			authFileIn.close();
 
-			Main main = new Main(new ScheduledThreadPoolExecutor(10),
-					props.getProperty("login_id"),
-					props.getProperty("login_pw"),
-					props.getProperty("xmpp_from_id"),
-					props.getProperty("xmpp_from_pw"),
-					props.getProperty("xmpp_to_id"));
+			Main main = new Main(new ScheduledThreadPoolExecutor(10), props.getProperty("login_id"), props.getProperty("login_pw"), props.getProperty("xmpp_from_id"), props.getProperty("xmpp_from_pw"), props.getProperty("xmpp_to_id"));
 			main.start();
 		} catch (Exception e) {
 			e.printStackTrace();

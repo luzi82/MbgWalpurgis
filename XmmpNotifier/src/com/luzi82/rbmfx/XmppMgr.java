@@ -23,8 +23,7 @@ public class XmppMgr implements IXmppMgr {
 
 	StateOp mStateOp = new StateOffOp();
 
-	public XmppMgr(ScheduledThreadPoolExecutor aExecutor, String aLoginId,
-			String aPassword, String aTarget) {
+	public XmppMgr(ScheduledThreadPoolExecutor aExecutor, String aLoginId, String aPassword, String aTarget) {
 		mExecutor = aExecutor;
 		mLoginId = aLoginId;
 		mPassword = aPassword;
@@ -107,17 +106,21 @@ public class XmppMgr implements IXmppMgr {
 					conn.login(mUsername, mPassword);
 				}
 				if (chat == null) {
-					chat = conn.getChatManager().createChat(mTarget,
-							new MessageListener() {
-								@Override
-								public void processMessage(Chat arg0,
-										Message arg1) {
-									// do nothing
-								}
-							});
+					chat = conn.getChatManager().createChat(mTarget, new MessageListener() {
+						@Override
+						public void processMessage(Chat arg0, Message arg1) {
+							// do nothing
+						}
+					});
 				}
-				while ((!mMessageList.isEmpty()) && (chat != null)) {
-					chat.sendMessage(mMessageList.removeLast());
+				while (true) {
+					synchronized (mMessageList) {
+						if (!((!mMessageList.isEmpty()) && (chat != null))) {
+							break;
+						}
+						chat.sendMessage(mMessageList.removeFirst());
+					}
+					Thread.sleep(1000);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();

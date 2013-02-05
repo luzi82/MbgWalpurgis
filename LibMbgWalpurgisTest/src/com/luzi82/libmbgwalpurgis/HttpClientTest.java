@@ -1,6 +1,7 @@
 package com.luzi82.libmbgwalpurgis;
 
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
@@ -42,6 +43,12 @@ import org.junit.Test;
 
 public class HttpClientTest {
 
+	final String[] ALL_RANK = { "N", "N+", "R", "R+", "SR", "SR+" };
+	final String[] UPGRADE_OK = { "R+", "SR", "SR+" };
+	final String[] EAT_OK = { "N+", "N" };
+	final List<String> UPGRADE_OK_LIST = Arrays.asList(UPGRADE_OK);
+	final List<String> EAT_OK_LIST = Arrays.asList(EAT_OK);
+
 	@Test
 	public void testAccess() {
 		try {
@@ -66,6 +73,8 @@ public class HttpClientTest {
 				}
 			});
 
+			// login
+
 			HttpGet httpGet = new HttpGet("https://ssl.sp.mbga.jp/_lg");
 			HttpResponse response = httpClient.execute(httpGet);
 			System.out.println(response.getStatusLine());
@@ -80,7 +89,7 @@ public class HttpClientTest {
 			Document doc = Jsoup.parse(is, "UTF-8", "https://ssl.sp.mbga.jp/_lg");
 			EntityUtils.consume(httpEntity);
 
-			Elements formElements = doc.select("form[action*=https://ssl.sp.mbga.jp/_lg]");
+			Elements formElements = doc.select("form[action=https://ssl.sp.mbga.jp/_lg]");
 			Assert.assertEquals(1, formElements.size());
 			Element formElement = formElements.get(0);
 
@@ -88,9 +97,9 @@ public class HttpClientTest {
 			for (Element inputElement : inputElements) {
 				System.out.println(inputElement.attr("name") + ": " + inputElement.attr("value"));
 			}
-			Assert.assertEquals(1, inputElements.select("[name*=login_id]").size());
-			Assert.assertEquals(1, inputElements.select("[name*=login_pw]").size());
-			Assert.assertEquals(1, inputElements.select("[type*=submit]").size());
+			Assert.assertEquals(1, inputElements.select("[name=login_id]").size());
+			Assert.assertEquals(1, inputElements.select("[name=login_pw]").size());
+			Assert.assertEquals(1, inputElements.select("[type=submit]").size());
 			for (Element inputElement : inputElements) {
 				String type = inputElement.attr("type");
 				if (type.equals("hidden"))
@@ -108,11 +117,11 @@ public class HttpClientTest {
 			List<NameValuePair> nvpList = new LinkedList<NameValuePair>();
 			nvpList.add(new BasicNameValuePair("login_id", props.getProperty("login_id")));
 			nvpList.add(new BasicNameValuePair("login_pw", props.getProperty("login_pw")));
-			Elements hiddenInputElements = formElement.select("[type*=hidden]");
+			Elements hiddenInputElements = formElement.select("[type=hidden]");
 			for (Element hiddenInputElement : hiddenInputElements) {
 				nvpList.add(new BasicNameValuePair(hiddenInputElement.attr("name"), hiddenInputElement.attr("value")));
 			}
-			Element submitElement = inputElements.select("[type*=submit]").get(0);
+			Element submitElement = inputElements.select("[type=submit]").get(0);
 			nvpList.add(new BasicNameValuePair(submitElement.attr("name"), submitElement.attr("value")));
 			StringEntity entity = new StringEntity(URLEncodedUtils.format(nvpList, "UTF-8"));
 			httpPost.setEntity(entity);
@@ -122,16 +131,17 @@ public class HttpClientTest {
 			Assert.assertEquals(200, response.getStatusLine().getStatusCode());
 
 			httpEntity = response.getEntity();
-			is = httpEntity.getContent();
-			InputStreamReader isr = new InputStreamReader(is, "UTF-8");
-			char[] buf = new char[1 << 16];
-			while (true) {
-				int len = isr.read(buf);
-				if (len == -1) {
-					break;
-				}
-				System.out.print(Arrays.copyOf(buf, len));
-			}
+			// is = httpEntity.getContent();
+			// InputStreamReader isr = new InputStreamReader(is, "UTF-8");
+			// char[] buf = new char[1 << 16];
+			// while (true) {
+			// int len = isr.read(buf);
+			// if (len == -1) {
+			// break;
+			// }
+			// System.out.print(Arrays.copyOf(buf, len));
+			// }
+			printEntity(httpEntity);
 			EntityUtils.consume(httpEntity);
 
 			CookieStore cookieStore = httpClient.getCookieStore();
@@ -146,16 +156,19 @@ public class HttpClientTest {
 			Assert.assertEquals(200, response.getStatusLine().getStatusCode());
 
 			httpEntity = response.getEntity();
-			is = httpEntity.getContent();
-			isr = new InputStreamReader(is, "UTF-8");
-			while (true) {
-				int len = isr.read(buf);
-				if (len == -1) {
-					break;
-				}
-				System.out.print(Arrays.copyOf(buf, len));
-			}
+			// is = httpEntity.getContent();
+			// isr = new InputStreamReader(is, "UTF-8");
+			// while (true) {
+			// int len = isr.read(buf);
+			// if (len == -1) {
+			// break;
+			// }
+			// System.out.print(Arrays.copyOf(buf, len));
+			// }
+			printEntity(httpEntity);
 			EntityUtils.consume(httpEntity);
+
+			// raid_boss_matching_feed.php
 
 			httpGet = new HttpGet("http://sp.pf.mbga.jp/12012090/?url=http%3A%2F%2Fmadoka2.sp.nextory.co.jp%2Fraid_boss_matching_feed.php");
 			response = httpClient.execute(httpGet);
@@ -167,7 +180,7 @@ public class HttpClientTest {
 			doc = Jsoup.parse(is, "UTF-8", "http://sp.pf.mbga.jp/12012090/?url=http%3A%2F%2Fmadoka2.sp.nextory.co.jp%2Fraid_boss_matching_feed.php");
 			EntityUtils.consume(httpEntity);
 
-			Elements unitElements = doc.select("div[class*=basic-bg] td[valign*=top]");
+			Elements unitElements = doc.select("div[class=basic-bg] td[valign=top]");
 			for (Element unitElement : unitElements) {
 				List<Node> chileNodes = unitElement.childNodes();
 				for (int i = 0; i < chileNodes.size(); ++i) {
@@ -206,17 +219,18 @@ public class HttpClientTest {
 				System.out.println(tn.text().trim());
 			}
 
+			// mypage.php
+
 			httpGet = new HttpGet("http://sp.pf.mbga.jp/12012090/?url=http%3A%2F%2Fmadoka2.sp.nextory.co.jp%2Fmypage.php");
 			response = httpClient.execute(httpGet);
 			System.out.println(response.getStatusLine());
 			Assert.assertEquals(200, response.getStatusLine().getStatusCode());
-
 			httpEntity = response.getEntity();
 			is = httpEntity.getContent();
 			doc = Jsoup.parse(is, "UTF-8", "http://sp.pf.mbga.jp/12012090/?url=http%3A%2F%2Fmadoka2.sp.nextory.co.jp%2Fmypage.php");
 			EntityUtils.consume(httpEntity);
 
-			Elements mainStatusElement = doc.select("div[class*=main-status] span");
+			Elements mainStatusElement = doc.select("div[class=main-status] span");
 			for (Element e : mainStatusElement) {
 				String t = e.ownText().trim();
 				if (!t.contains("でレベルアップ"))
@@ -229,7 +243,7 @@ public class HttpClientTest {
 				System.out.println(Integer.parseInt(t));
 			}
 
-			Elements cardElements = doc.select("div[class*=status-exsample] td div");
+			Elements cardElements = doc.select("div[class=status-exsample] td div");
 			for (Element e : cardElements) {
 				Elements eas = e.select("a");
 				if (eas.size() != 1)
@@ -246,7 +260,7 @@ public class HttpClientTest {
 
 			Pattern lpPattern = Pattern.compile("LP:([\\d]+)/([\\d]+)");
 			Pattern bpPattern = Pattern.compile("BP:([\\d]+)/([\\d]+)");
-			Elements mmlElements = doc.select("span[class*=mypage-mode-label]");
+			Elements mmlElements = doc.select("span[class=mypage-mode-label]");
 			for (Element e : mmlElements) {
 				String t = e.ownText().trim();
 				Matcher m;
@@ -262,9 +276,267 @@ public class HttpClientTest {
 				}
 			}
 
+			// 強化
+			int girl = 3;
+			String mainGirlCid = null;
+
+			// filter girl, sort by atk up
+			httpGet = new HttpGet("http://sp.pf.mbga.jp/12012090/?guid=ON&url=http%3A%2F%2Fmadoka2.sp.nextory.co.jp%2Fcardadd_change.php%3Fsort%3D7%26kind%3D0%26chara%3D" + girl + "%26equip%3D0");
+			response = httpClient.execute(httpGet);
+			System.out.println(response.getStatusLine());
+			Assert.assertEquals(200, response.getStatusLine().getStatusCode());
+			httpEntity = response.getEntity();
+			is = httpEntity.getContent();
+			doc = Jsoup.parse(is, "UTF-8", "http://sp.pf.mbga.jp/12012090/?guid=ON&url=http%3A%2F%2Fmadoka2.sp.nextory.co.jp%2Fcardadd_change.php%3Fsort%3D7%26kind%3D0%26chara%3D" + girl + "%26equip%3D0");
+			EntityUtils.consume(httpEntity);
+
+			cardElements = doc.select("div[class=basic-bg]");
+			Element cardElement = null;
+			int okRate = -1;
+			for (Element e : cardElements) {
+				Elements rateElements = e.select("a span");
+				for (Element rateElement : rateElements) {
+					String rateText = rateElement.text();
+					int rate = UPGRADE_OK_LIST.indexOf(rateText);
+					if (rate > okRate) {
+						System.out.println(rateText);
+						cardElement = e;
+						okRate = rate;
+					}
+				}
+			}
+
+			if (cardElement != null) {
+				System.out.println("(cardElement != null)");
+				Elements labelElements = cardElement.select("label[for]");
+				Assert.assertEquals(1, labelElements.size());
+				String labelString = labelElements.get(0).attr("for");
+				System.out.println(labelString);
+				Assert.assertTrue(labelString.startsWith("cb"));
+				labelString = labelString.substring(2);
+				mainGirlCid = labelString;
+
+				Elements aElements = cardElement.select("a");
+				String href = null;
+				for (Element e : aElements) {
+					href = e.absUrl("href");
+					if (href.contains("cardadd_change.php"))
+						break;
+				}
+				Assert.assertNotNull(href);
+				System.out.println(href);
+
+				httpGet = new HttpGet(href);
+				response = httpClient.execute(httpGet);
+				System.out.println(response.getStatusLine());
+				Assert.assertEquals(200, response.getStatusLine().getStatusCode());
+				httpEntity = response.getEntity();
+				// is = httpEntity.getContent();
+				// doc = Jsoup.parse(is, "UTF-8", href);
+				EntityUtils.consume(httpEntity);
+
+				// filter girl, sort by atk down
+				String cardadd_list_url = "http://sp.pf.mbga.jp/12012090/?url=http%3A%2F%2Fmadoka2.sp.nextory.co.jp%2Fcardadd_list.php%3Foff%3D%26chara%3D+" + girl + "%26set%3D1%26sort%3D1";
+				httpGet = new HttpGet(cardadd_list_url);
+				response = httpClient.execute(httpGet);
+				System.out.println(response.getStatusLine());
+				Assert.assertEquals(200, response.getStatusLine().getStatusCode());
+				httpEntity = response.getEntity();
+				is = httpEntity.getContent();
+				doc = Jsoup.parse(is, "UTF-8", href);
+				EntityUtils.consume(httpEntity);
+
+				// check first appear card
+				aElements = doc.select("a[href*=card_detail.php][href*=card_sid]");
+				for (Element e : aElements) {
+					href = e.absUrl("href");
+					// must do check
+					System.out.println(href);
+					// must do check
+					Assert.assertTrue(href.contains("card_sid%3D" + labelString));
+					break;
+				}
+
+				LinkedList<String> selectedCid = new LinkedList<String>();
+
+				cardElements = doc.select("form div[class=basic-bg]");
+				for (Element e : cardElements) {
+					Elements checkboxElements = e.select("input[type=checkbox][name^=cards]");
+					if (checkboxElements.size() != 1)
+						continue;
+					String cid = checkboxElements.get(0).attr("value");
+
+					labelElements = e.select("label[for]");
+					Assert.assertEquals(2, labelElements.size());
+					for (Element labelElement : labelElements) {
+						labelString = labelElement.attr("for");
+						Assert.assertTrue(labelString.startsWith("cb"));
+						labelString = labelString.substring(2);
+
+						if (!labelString.equals(cid)) {
+							cid = null;
+							break;
+						}
+					}
+
+					if (cid == null)
+						continue;
+
+					// System.out.println(cid);
+
+					Elements rankElements = e.select("a span");
+					for (Element rateElement : rankElements) {
+						String rankText = rateElement.text();
+						int rate = EAT_OK_LIST.indexOf(rankText);
+						if (rate != -1) {
+							selectedCid.add(cid);
+						}
+					}
+				}
+
+				for (String cid : selectedCid) {
+					System.out.println(cid);
+				}
+				if (selectedCid.size() > 0) {
+					formElements = doc.select("form[action*=cardadd_list.php]:has(input[type=submit])");
+					Assert.assertEquals(1, formElements.size());
+					formElement = formElements.get(0);
+					String formUrl = formElement.absUrl("action");
+					System.out.println(formUrl);
+
+					Elements submitElements = formElement.select("input[type=submit][name=add][value=強化する]");
+					Assert.assertEquals(2, submitElements.size());
+					submitElement = submitElements.get(0);
+
+					httpPost = new HttpPost(formUrl);
+					// httpPost.setHeader("Referer", cardadd_list_url);
+					httpPost.setHeader("Content-Type", "application/x-www-form-urlencoded");
+					nvpList = new LinkedList<NameValuePair>();
+					nvpList.add(new BasicNameValuePair(submitElement.attr("name"), submitElement.attr("value")));
+					for (String cid : selectedCid) {
+						nvpList.add(new BasicNameValuePair("cards[]", cid));
+					}
+					String entityString = URLEncodedUtils.format(nvpList, "UTF-8");
+					System.out.println(entityString);
+					entity = new StringEntity(entityString);
+					httpPost.setEntity(entity);
+					response = httpClient.execute(httpPost);
+					System.out.println(response.getStatusLine());
+					Assert.assertEquals(200, response.getStatusLine().getStatusCode());
+					httpEntity = response.getEntity();
+					is = httpEntity.getContent();
+					doc = Jsoup.parse(is, "UTF-8", formUrl);
+					EntityUtils.consume(httpEntity);
+
+					// FINAL CHECK
+
+					checkFinalPage(doc, mainGirlCid, girl);
+
+					formElements = doc.select("form[action*=cardadd_exe.php]:has(input[type=submit][name=cardadd])");
+					System.out.println(formElements.size());
+					formElement = formElements.get(0);
+					formUrl = formElement.absUrl("action");
+
+					Elements hiddenElements = formElement.select("input[type=hidden]");
+
+					submitElements = formElement.select("input[type=submit][name=cardadd]");
+					Assert.assertEquals(1, submitElements.size());
+					submitElement = submitElements.get(0);
+
+					System.out.println(formUrl);
+					httpPost = new HttpPost(formUrl);
+					// httpPost.setHeader("Referer", cardadd_list_url);
+					httpPost.setHeader("Content-Type", "application/x-www-form-urlencoded");
+					nvpList = new LinkedList<NameValuePair>();
+					nvpList.add(new BasicNameValuePair(submitElement.attr("name"), submitElement.attr("value")));
+					for (Element e : hiddenElements) {
+						nvpList.add(new BasicNameValuePair(e.attr("name"), e.attr("value")));
+					}
+					entityString = URLEncodedUtils.format(nvpList, "UTF-8");
+					System.out.println(entityString);
+					entity = new StringEntity(entityString);
+					httpPost.setEntity(entity);
+
+					response = httpClient.execute(httpPost);
+					System.out.println(response.getStatusLine());
+					Assert.assertEquals(200, response.getStatusLine().getStatusCode());
+					httpEntity = response.getEntity();
+					printEntity(httpEntity);
+					EntityUtils.consume(httpEntity);
+				}
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			Assert.fail();
+		}
+	}
+
+	public void checkCardCid(Element aElement, String aCid) {
+		Elements aes = aElement.select("a[href*=card_detail.php][href*=card_sid]");
+		Assert.assertEquals(1, aes.size());
+		aes.attr("href").contains("card_sid%3D" + aCid);
+		Elements labels = aElement.select("label[for]");
+		Assert.assertTrue(labels.size() >= 1);
+		for (Element e : labels) {
+			Assert.assertEquals("cb" + aCid, e.attr("for"));
+		}
+	}
+
+	public void checkCardGirl(Element aElement, int aGirl) {
+		Elements img = aElement.select("img[src*=http%3A%2F%2Fmadoka2.sp.nextory.co.jp%2Fimg%2Fcard%2F]");
+		Assert.assertEquals(1, img.size());
+		Assert.assertTrue(img.attr("src").contains("card_" + aGirl));
+	}
+
+	public void checkCardRank(Element aElement, String[] aRank) {
+		List<String> rankList = Arrays.asList(aRank);
+		Elements aes = aElement.select("a[href*=card_detail.php][href*=card_sid]");
+		Assert.assertEquals(1, aes.size());
+		Elements spans = aes.select("span");
+		for (Element span : spans) {
+			String txt = span.text().trim();
+			if (rankList.contains(txt))
+				return;
+		}
+		for (Element span : spans) {
+			String txt = span.text().trim();
+			System.err.println(txt);
+		}
+		Assert.fail();
+	}
+
+	public void checkFinalPage(Document aDoc, String aMainCid, int aGirl) {
+		Elements cardElements = aDoc.select("div[class=basic-bg]");
+		System.out.println("cardElements.size()=" + cardElements.size());
+		boolean first = true;
+		for (Element cardElement : cardElements) {
+			if (first) {
+				checkCardCid(cardElement, aMainCid);
+				checkCardGirl(cardElement, aGirl);
+				checkCardRank(cardElement, UPGRADE_OK);
+			} else {
+				checkCardGirl(cardElement, aGirl);
+				checkCardRank(cardElement, EAT_OK);
+			}
+			first = false;
+		}
+		Elements blinks = aDoc.select("div[class=blink]");
+		for (Element blink : blinks) {
+			if (blink.text().contains("レアカード"))
+				Assert.fail();
+		}
+	}
+
+	public void printEntity(HttpEntity httpEntity) throws IllegalStateException, IOException {
+		InputStream is = httpEntity.getContent();
+		InputStreamReader isr = new InputStreamReader(is, "UTF-8");
+		char[] buf = new char[1 << 16];
+		while (true) {
+			int len = isr.read(buf);
+			if (len == -1) {
+				break;
+			}
+			System.out.print(Arrays.copyOf(buf, len));
 		}
 	}
 }

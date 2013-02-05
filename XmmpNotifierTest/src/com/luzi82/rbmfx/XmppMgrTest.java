@@ -1,11 +1,8 @@
 package com.luzi82.rbmfx;
 
-import static org.junit.Assert.*;
-
 import java.io.FileInputStream;
 import java.util.Properties;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.regex.Pattern;
 
 import org.junit.Test;
 

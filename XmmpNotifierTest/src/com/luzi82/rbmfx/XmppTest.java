@@ -31,12 +31,11 @@ public class XmppTest {
 			Connection conn = new XMPPConnection(server);
 			conn.connect();
 			conn.login(name, xmpp_from_pw);
-			Chat chat = conn.getChatManager().createChat(xmpp_to_id,
-					new MessageListener() {
-						@Override
-						public void processMessage(Chat arg0, Message arg1) {
-						}
-					});
+			Chat chat = conn.getChatManager().createChat(xmpp_to_id, new MessageListener() {
+				@Override
+				public void processMessage(Chat arg0, Message arg1) {
+				}
+			});
 			chat.sendMessage("HelloWorld");
 			chat.sendMessage("http://www.yahoo.com.hk");
 			chat.sendMessage("A\nhttp://www.yahoo.com.hk");

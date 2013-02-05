@@ -42,43 +42,48 @@ public class MwClient implements IMwClient {
 
 	@Override
 	public void connect(String aLoginId, String aPassword, ICallback<Void> aCallback, ICallback<Exception> aException) {
-		mClientState.connect(aLoginId, aPassword, aCallback, aException);
+		mStateOp.connect(aLoginId, aPassword, aCallback, aException);
 	}
 
 	@Override
 	public void disconnect(ICallback<Void> aCallback) {
-		mClientState.disconnect(aCallback);
+		mStateOp.disconnect(aCallback);
 	}
 
 	@Override
 	public String getLoginId() {
-		return mClientState.getLoginId();
+		return mStateOp.getLoginId();
 	}
 
 	@Override
 	public State getState() {
-		return mClientState.getState();
+		return mStateOp.getState();
 	}
 
 	@Override
 	public void getFeed(ICallback<RaidBossMatchingFeed> aCallback, ICallback<Exception> aExceptionCallback) {
-		mClientState.getFeed(aCallback, aExceptionCallback);
+		mStateOp.getFeed(aCallback, aExceptionCallback);
 	}
 
 	@Override
 	public void getStatus(ICallback<PlayerStatus> aCallback, ICallback<Exception> aExceptionCallback) {
-		mClientState.getStatus(aCallback, aExceptionCallback);
+		mStateOp.getStatus(aCallback, aExceptionCallback);
 	}
 
 	public ICallback<State> mStateChangeCallback;
 
 	@Override
 	public void setStateChangeCallback(ICallback<State> aCallback) {
-		mClientState.setStateChangeCallback(aCallback);
+		mStateOp.setStateChangeCallback(aCallback);
+	}
+
+	@Override
+	public void burnBronze(ICallback<Void> aCallback, ICallback<Exception> aExceptionCallback) {
+		mStateOp.burnBronze(aCallback, aExceptionCallback);
 	}
 
 	public void notifyChangeCallback() {
-		Utils.startCallback(mStateChangeCallback, mClientState.getState(), mExecutor);
+		Utils.startCallback(mStateChangeCallback, mStateOp.getState(), mExecutor);
 	}
 
 	public abstract class MwClientState implements IMwClient {
@@ -120,9 +125,14 @@ public class MwClient implements IMwClient {
 		public void getStatus(ICallback<PlayerStatus> aCallback, ICallback<Exception> aExceptionCallback) {
 			Utils.startCallback(aExceptionCallback, new IllegalStateException(), mExecutor);
 		}
+
+		@Override
+		public void burnBronze(ICallback<Void> aCallback, ICallback<Exception> aExceptionCallback) {
+			Utils.startCallback(aExceptionCallback, new IllegalStateException(), mExecutor);
+		}
 	}
 
-	MwClientState mClientState = new MwClientStateOffline();
+	MwClientState mStateOp = new MwClientStateOffline();
 
 	public class MwClientStateOffline extends MwClientState {
 
@@ -133,7 +143,7 @@ public class MwClient implements IMwClient {
 		@Override
 		public void connect(String aLoginId, String aPassword, ICallback<Void> aCallback, ICallback<Exception> aException) {
 			MwClientStateConnecting state = new MwClientStateConnecting(aLoginId, aPassword, aCallback, aException);
-			mClientState = state;
+			mStateOp = state;
 			notifyChangeCallback();
 			state.startProcess();
 		}
@@ -157,7 +167,7 @@ public class MwClient implements IMwClient {
 		@Override
 		public void disconnect(final ICallback<Void> aCallback) {
 			MwClientStateDisconnecting state = new MwClientStateDisconnecting(aCallback);
-			mClientState = state;
+			mStateOp = state;
 			notifyChangeCallback();
 			state.startProcess();
 		}
@@ -191,6 +201,12 @@ public class MwClient implements IMwClient {
 			asynList.addCallback(aCallback);
 			asynList.start(mExecutor);
 		}
+
+		@Override
+		public void burnBronze(ICallback<Void> aCallback, ICallback<Exception> aExceptionCallback) {
+			BurnBronzeOp bbo = new BurnBronzeOp(MwClient.this, mHttpClient);
+			bbo.start(aCallback, aExceptionCallback);
+		}
 	}
 
 	public class MwClientStateConnecting extends MwClientState {
@@ -213,16 +229,16 @@ public class MwClient implements IMwClient {
 					try {
 						mHttpClient = createHttpClient();
 						if (login(mHttpClient, mLoginId, mPassword)) {
-							mClientState = new MwClientStateOnline(mHttpClient, mLoginId);
+							mStateOp = new MwClientStateOnline(mHttpClient, mLoginId);
 							notifyChangeCallback();
 							Utils.startCallback(mCallback, null, mExecutor);
 						} else {
-							mClientState = new MwClientStateOffline();
+							mStateOp = new MwClientStateOffline();
 							notifyChangeCallback();
 							Utils.startCallback(mExceptionCallback, new Exception("login fail"), mExecutor);
 						}
 					} catch (Exception e) {
-						mClientState = new MwClientStateOffline();
+						mStateOp = new MwClientStateOffline();
 						notifyChangeCallback();
 						Utils.startCallback(mExceptionCallback, e, mExecutor);
 					}
@@ -250,7 +266,7 @@ public class MwClient implements IMwClient {
 			mExecutor.execute(new Runnable() {
 				@Override
 				public void run() {
-					mClientState = new MwClientStateOffline();
+					mStateOp = new MwClientStateOffline();
 					notifyChangeCallback();
 					Utils.startCallback(mCallback, null, mExecutor);
 				}
@@ -375,6 +391,15 @@ public class MwClient implements IMwClient {
 				}
 			}
 		});
+	}
+
+	public ICallback<HttpUriRequest> httpDocCallback(final HttpClient aHttpClient, final ICallback<Document> aCallback, final ICallback<Exception> aExceptionCallback) {
+		return new ICallback<HttpUriRequest>() {
+			@Override
+			public void callback(HttpUriRequest aResult) {
+				httpDoc(aHttpClient, aResult, aCallback, aExceptionCallback);
+			}
+		};
 	}
 
 }

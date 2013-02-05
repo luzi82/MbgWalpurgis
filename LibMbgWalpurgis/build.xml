@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- WARNING: Eclipse auto-generated file.
+              Any modifications will be overwritten.
+              To include a user specific buildfile here, simply create one in the same
+              directory with the processing instruction <?eclipse.ant.import?>
+              as the first entry and export the buildfile again. --><project basedir="." default="build" name="LibMbgWalpurgis">
+    <property environment="env"/>
+    <property name="LibMbgWalpurgisTest.location" value="../LibMbgWalpurgisTest"/>
+    <property name="RaidBossMatchingFeedXmmp.location" value="../RaidBossMatchingFeedXmmp"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.6"/>
+    <property name="source" value="1.6"/>
+    <path id="LibMbgWalpurgis.classpath">
+        <pathelement location="bin"/>
+    </path>
+    <target name="init">
+        <mkdir dir="bin"/>
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="dep/commons-codec-1.7-src/src/main/java">
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="dep/commons-logging-1.1.1-src/src/java">
+                <exclude name="**/*.java"/>
+                <exclude name="org/apache/commons/logging/impl/AvalonLogger.java"/>
+                <exclude name="org/apache/commons/logging/impl/Jdk13LumberjackLogger.java"/>
+                <exclude name="org/apache/commons/logging/impl/Jdk14Logger.java"/>
+                <exclude name="org/apache/commons/logging/impl/Log4JLogger.java"/>
+                <exclude name="org/apache/commons/logging/impl/LogKitLogger.java"/>
+                <exclude name="org/apache/commons/logging/impl/ServletContextCleaner.java"/>
+                <exclude name="org/apache/commons/logging/impl/WeakHashtable.java"/>
+                <exclude name="org/apache/commons/logging/impl/package.html"/>
+            </fileset>
+        </copy>
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="dep/httpcomponents-core-4.2.3/httpcore/src/main/java">
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="dep/httpcomponents-client-4.2.3/httpclient/src/main/java">
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="dep/jsoup/src/main/java">
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="src">
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+    <target name="clean">
+        <delete dir="bin"/>
+    </target>
+    <target depends="clean" name="cleanall"/>
+    <target depends="build-subprojects,build-project" name="build"/>
+    <target name="build-subprojects"/>
+    <target depends="init" name="build-project">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}">
+            <src path="dep/commons-codec-1.7-src/src/main/java"/>
+            <src path="dep/commons-logging-1.1.1-src/src/java"/>
+            <src path="dep/httpcomponents-core-4.2.3/httpcore/src/main/java"/>
+            <src path="dep/httpcomponents-client-4.2.3/httpclient/src/main/java"/>
+            <src path="dep/jsoup/src/main/java"/>
+            <src path="src"/>
+            <exclude name="org/apache/commons/logging/impl/AvalonLogger.java"/>
+            <exclude name="org/apache/commons/logging/impl/Jdk13LumberjackLogger.java"/>
+            <exclude name="org/apache/commons/logging/impl/Jdk14Logger.java"/>
+            <exclude name="org/apache/commons/logging/impl/Log4JLogger.java"/>
+            <exclude name="org/apache/commons/logging/impl/LogKitLogger.java"/>
+            <exclude name="org/apache/commons/logging/impl/ServletContextCleaner.java"/>
+            <exclude name="org/apache/commons/logging/impl/WeakHashtable.java"/>
+            <exclude name="org/apache/commons/logging/impl/package.html"/>
+            <classpath refid="LibMbgWalpurgis.classpath"/>
+        </javac>
+    </target>
+    <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects">
+        <ant antfile="build.xml" dir="${LibMbgWalpurgisTest.location}" inheritAll="false" target="clean"/>
+        <ant antfile="build.xml" dir="${LibMbgWalpurgisTest.location}" inheritAll="false" target="build"/>
+        <ant antfile="build.xml" dir="${RaidBossMatchingFeedXmmp.location}" inheritAll="false" target="clean"/>
+        <ant antfile="build.xml" dir="${RaidBossMatchingFeedXmmp.location}" inheritAll="false" target="build"/>
+    </target>
+</project>

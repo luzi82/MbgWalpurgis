@@ -43,7 +43,7 @@ import org.junit.Test;
 public class HttpClientTest {
 
 	@Test
-	public void testLoginPage() {
+	public void testAccess() {
 		try {
 			Properties props = new Properties();
 			FileInputStream authFileIn = new FileInputStream("auth.properties");

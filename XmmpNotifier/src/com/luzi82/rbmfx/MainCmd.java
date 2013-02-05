@@ -14,6 +14,10 @@ public class MainCmd {
 		aHandler.mCommandListener.commandReturn(null);
 	}
 
+	public static void cmd_poll(CommandHandler aHandler) {
+		aHandler.mCommandListener.commandReturn(Boolean.toString(Main.mMain.mMw.mMaintainScheduledFuture != null));
+	}
+
 	public static void cmd_pollfreq(CommandHandler aHandler) {
 		int freq = Main.mMain.mMw.getPollFreq();
 		aHandler.mCommandListener.commandReturn(Integer.toString(freq));
@@ -27,6 +31,19 @@ public class MainCmd {
 	public static void cmd_msgstop(CommandHandler aHandler) {
 		Main.mMain.mMsgEnabled = false;
 		aHandler.mCommandListener.commandReturn(null);
+	}
+
+	public static void cmd_msg(CommandHandler aHandler) {
+		aHandler.mCommandListener.commandReturn(Boolean.toString(Main.mMain.mMsgEnabled));
+	}
+
+	public static void cmd_lpexpset(CommandHandler aHandler, float aValue) {
+		Main.mMain.mMw.mLp2Exp = aValue;
+		aHandler.mCommandListener.commandReturn(null);
+	}
+
+	public static void cmd_lpexp(CommandHandler aHandler) {
+		aHandler.mCommandListener.commandReturn(Float.toString(Main.mMain.mMw.mLp2Exp));
 	}
 
 }

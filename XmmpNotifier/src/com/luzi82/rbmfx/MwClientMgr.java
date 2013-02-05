@@ -29,6 +29,7 @@ public class MwClientMgr {
 	boolean mLastFullBp = false;
 	boolean mLastExpUp = false;
 	boolean mLastFullCard = false;
+	public float mLp2Exp = 7.5f;
 
 	LinkedList<Long> mPollTime = new LinkedList<Long>();
 
@@ -99,7 +100,7 @@ public class MwClientMgr {
 
 						boolean fullLp = aResult.mLp >= aResult.mLpMax;
 						boolean fullBp = aResult.mBp >= aResult.mBpMax;
-						boolean expUp = aResult.mLp * 7 >= aResult.mExpToUp;
+						boolean expUp = aResult.mLp * mLp2Exp >= aResult.mExpToUp;
 						boolean fullCard = aResult.mCard >= aResult.mCardMax - 10;
 						long now = System.currentTimeMillis();
 

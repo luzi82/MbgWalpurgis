@@ -50,7 +50,17 @@ public class Main {
 			public void callback(PlayerStatus aResult) {
 				if (!mMsgEnabled)
 					return;
-				mXmpp.send(aResult.toString());
+				StringBuffer sb = new StringBuffer();
+				sb.append(aResult.toString());
+				if (mMw.mLastFullLp)
+					sb.append("\n* FULL LP");
+				if (mMw.mLastFullBp)
+					sb.append("\n* FULL BP");
+				if (mMw.mLastExpUp)
+					sb.append("\n* EXP UP");
+				if (mMw.mLastFullCard)
+					sb.append("\n* FULL CARD");
+				mXmpp.send(sb.toString());
 			}
 		});
 		mMw.setExceptionListener(new ICallback<Exception>() {

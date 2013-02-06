@@ -4,5 +4,13 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/LibMbgWalpurgis"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="lib" path="/_import/output/jsoup/jsoup-1.7.2.jar"/>
+	<classpathentry kind="lib" path="/_import/output/httpcomponents-client-4.2.3/lib/commons-codec-1.6.jar"/>
+	<classpathentry kind="lib" path="/_import/output/httpcomponents-client-4.2.3/lib/commons-logging-1.1.1.jar"/>
+	<classpathentry kind="lib" path="/_import/output/httpcomponents-client-4.2.3/lib/fluent-hc-4.2.3.jar"/>
+	<classpathentry kind="lib" path="/_import/output/httpcomponents-client-4.2.3/lib/httpclient-4.2.3.jar"/>
+	<classpathentry kind="lib" path="/_import/output/httpcomponents-client-4.2.3/lib/httpclient-cache-4.2.3.jar"/>
+	<classpathentry kind="lib" path="/_import/output/httpcomponents-client-4.2.3/lib/httpcore-4.2.2.jar"/>
+	<classpathentry kind="lib" path="/_import/output/httpcomponents-client-4.2.3/lib/httpmime-4.2.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

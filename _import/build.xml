@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="build" name="LibMbgWalpurgis">
+    <property name="out" value="output"/>
+    <property name="tmp" value="tmp"/>
+    <property name="in" value="input"/>
+    
+    <target name="build">
+        <mkdir dir="${out}"/>
+        <mkdir dir="${tmp}"/>
+        
+        <untar src="${in}/httpcomponents-client-4.2.3-bin.tar.gz" dest="${out}/" compression="gzip" />
+        <copy file="${in}/jsoup-1.7.2.jar" todir="${out}/jsoup" />
+        <copy file="${in}/NagatoQuery.jar" todir="${out}/NagatoQuery" />
+        <untar src="${in}/smack_3_2_2.tar.gz" dest="${out}/" compression="gzip" />
+        
+        <delete dir="${tmp}"/>
+    </target>
+    
+    <target name="clean">
+        <delete dir="${tmp}"/>
+        <delete dir="${out}"/>
+    </target>
+    
+</project>

@@ -1,6 +1,5 @@
 package com.luzi82.rbmfx;
 
-import java.io.FileInputStream;
 import java.util.Properties;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
@@ -101,10 +100,6 @@ public class Main {
 
 	public static void main(String[] argv) {
 		try {
-//			Properties props = new Properties();
-//			FileInputStream authFileIn = new FileInputStream("auth.properties");
-//			props.load(authFileIn);
-//			authFileIn.close();
 			Properties props=Prop.getAuthProperties();
 
 			mMain = new Main(new ScheduledThreadPoolExecutor(10), props.getProperty("login_id"), props.getProperty("login_pw"), props.getProperty("xmpp_from_id"), props.getProperty("xmpp_from_pw"), props.getProperty("xmpp_to_id"));

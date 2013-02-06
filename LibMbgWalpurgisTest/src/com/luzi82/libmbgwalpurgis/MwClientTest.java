@@ -1,6 +1,5 @@
 package com.luzi82.libmbgwalpurgis;
 
-import java.io.FileInputStream;
 import java.util.Properties;
 import java.util.concurrent.Executors;
 
@@ -15,12 +14,7 @@ public class MwClientTest extends AbstractMwClientTest {
 	@BeforeClass
 	public static void oneTimeSetUp() {
 		try {
-//			props = new Properties();
-//			FileInputStream authFileIn;
-//			authFileIn = new FileInputStream("auth.properties");
-//			props.load(authFileIn);
-//			authFileIn.close();
-			Properties props=Prop.getAuthProperties();
+			props=Prop.getAuthProperties();
 		} catch (Exception e) {
 			throw new Error(e);
 		}

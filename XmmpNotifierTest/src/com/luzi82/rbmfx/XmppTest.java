@@ -1,6 +1,5 @@
 package com.luzi82.rbmfx;
 
-import java.io.FileInputStream;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
@@ -18,10 +17,6 @@ public class XmppTest {
 	@Test
 	public void test() {
 		try {
-//			Properties props = new Properties();
-//			FileInputStream authFileIn = new FileInputStream("auth.properties");
-//			props.load(authFileIn);
-//			authFileIn.close();
 			Properties props=Prop.getAuthProperties();
 
 			String xmpp_from_id = props.getProperty("xmpp_from_id");

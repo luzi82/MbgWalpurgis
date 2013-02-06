@@ -1,6 +1,5 @@
 package com.luzi82.libmbgwalpurgis;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -52,13 +51,10 @@ public class HttpClientTest {
 	final List<String> UPGRADE_OK_LIST = Arrays.asList(UPGRADE_OK);
 	final List<String> EAT_OK_LIST = Arrays.asList(EAT_OK);
 
+	@SuppressWarnings("unused")
 	@Test
 	public void testAccess() {
 		try {
-//			Properties props = new Properties();
-//			FileInputStream authFileIn = new FileInputStream("auth.properties");
-//			props.load(authFileIn);
-//			authFileIn.close();
 			Properties props=Prop.getAuthProperties();
 
 			HttpParams httpParams = new BasicHttpParams();

@@ -15,6 +15,7 @@ import com.luzi82.libmbgwalpurgis.MwClient;
 import com.luzi82.libmbgwalpurgis.PlayerStatus;
 import com.luzi82.libmbgwalpurgis.RaidBossMatchingFeed;
 import com.luzi82.libmbgwalpurgis.RaidBossMatchingFeed.Unit;
+import com.luzi82.libmbgwalpurgis.Utils;
 
 public class MwClientMgr {
 
@@ -101,7 +102,7 @@ public class MwClientMgr {
 						boolean fullLp = aResult.mLp >= aResult.mLpMax;
 						boolean fullBp = aResult.mBp >= aResult.mBpMax;
 						boolean expUp = aResult.mLp * mLp2Exp >= aResult.mExpToUp;
-						boolean fullCard = aResult.mCard >= aResult.mCardMax - 10;
+						boolean fullCard = aResult.mCard >= aResult.mCardMax - 5;
 						long now = System.currentTimeMillis();
 
 						boolean notify = fullLp || fullBp || expUp || fullCard;
@@ -113,17 +114,19 @@ public class MwClientMgr {
 						notifyNow = notifyNow || (notify && (now >= mLastNotify + 5 * 60 * 1000));
 						// notifyNow = true;
 
-						if (notifyNow) {
-							if (mPlayerStatusCallback != null) {
-								mPlayerStatusCallback.callback(aResult);
-								mLastNotify = now;
-							}
-						}
-
 						mLastFullLp = fullLp;
 						mLastFullBp = fullBp;
 						mLastExpUp = expUp;
 						mLastFullCard = fullCard;
+
+						if (notifyNow) {
+							if (mPlayerStatusCallback != null) {
+								mLastNotify = now;
+								// mPlayerStatusCallback.callback(aResult);
+								Utils.startCallback(mPlayerStatusCallback, aResult, mExecutor);
+							}
+						}
+
 					}
 				}, new ExceptionCallback());
 			}
@@ -215,6 +218,10 @@ public class MwClientMgr {
 			}
 			mPollTime.removeAll(rmList);
 		}
+	}
+
+	public void burnBronze(ICallback<Void> aCallback, ICallback<Exception> aExceptionCallback) {
+		mMwClient.burnBronze(aCallback, aExceptionCallback);
 	}
 
 	/**

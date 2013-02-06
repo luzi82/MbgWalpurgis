@@ -1,5 +1,6 @@
 package com.luzi82.rbmfx;
 
+import com.luzi82.libmbgwalpurgis.ICallback;
 import com.luzi82.nagatoquery.NqExec.CommandHandler;
 
 public class MainCmd {
@@ -44,6 +45,22 @@ public class MainCmd {
 
 	public static void cmd_lpexp(CommandHandler aHandler) {
 		aHandler.mCommandListener.commandReturn(Float.toString(Main.mMain.mMw.mLp2Exp));
+	}
+
+	public static void cmd_burn(final CommandHandler aHandler) {
+		Main.mMain.mMw.burnBronze(new ICallback<Void>() {
+			@Override
+			public void callback(Void aResult) {
+				aHandler.mCommandListener.commandTrace("done");
+				aHandler.mCommandListener.commandReturn(null);
+			}
+		}, new ICallback<Exception>() {
+			@Override
+			public void callback(Exception aResult) {
+				aHandler.mCommandListener.commandError(aResult.getMessage());
+				aResult.printStackTrace();
+			}
+		});
 	}
 
 }

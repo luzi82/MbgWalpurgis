@@ -18,6 +18,7 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.ProtocolException;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -457,13 +458,66 @@ public class HttpClientTest {
 					entity = new StringEntity(entityString);
 					httpPost.setEntity(entity);
 
-					response = httpClient.execute(httpPost);
-					System.out.println(response.getStatusLine());
-					Assert.assertEquals(200, response.getStatusLine().getStatusCode());
-					httpEntity = response.getEntity();
-					printEntity(httpEntity);
-					EntityUtils.consume(httpEntity);
+					if (false) {
+						response = httpClient.execute(httpPost);
+						System.out.println(response.getStatusLine());
+						Assert.assertEquals(200, response.getStatusLine().getStatusCode());
+						httpEntity = response.getEntity();
+						printEntity(httpEntity);
+						EntityUtils.consume(httpEntity);
+					}
 				}
+			}
+
+			// present
+			while (true) {
+				System.out.println("present_list");
+				httpGet = new HttpGet("http://sp.pf.mbga.jp/12012090/?url=http%3A%2F%2Fmadoka2.sp.nextory.co.jp%2Fpresent_list.php");
+				try {
+					response = httpClient.execute(httpGet);
+				} catch (ClientProtocolException cpe) {
+					cpe.printStackTrace();
+					Thread.sleep(1000);
+					continue;
+				}
+				break;
+			}
+			System.out.println(response.getStatusLine());
+			Assert.assertEquals(200, response.getStatusLine().getStatusCode());
+			httpEntity = response.getEntity();
+			is = httpEntity.getContent();
+			doc = Jsoup.parse(is, "UTF-8", "http://sp.pf.mbga.jp/12012090/?url=http%3A%2F%2Fmadoka2.sp.nextory.co.jp%2Fpresent_list.php");
+			EntityUtils.consume(httpEntity);
+
+			formElements = doc.select("form[action*=present_exe.php]:has(input[name=sid_ary])");
+			if (formElements.size() >= 1) {
+				Assert.assertEquals(1, formElements.size());
+				formElement = formElements.get(0);
+
+				Elements submitElements = formElement.select("input[type=submit]");
+				Assert.assertEquals(1, submitElements.size());
+				submitElement = submitElements.get(0);
+
+				nvpList = new LinkedList<NameValuePair>();
+				nvpList.add(new BasicNameValuePair(submitElement.attr("name"), submitElement.attr("value")));
+				for (Element e : formElement.select("input[type=hidden]")) {
+					nvpList.add(new BasicNameValuePair(e.attr("name"), e.attr("value")));
+					System.out.println(e.attr("name") + " --- " + e.attr("value"));
+				}
+
+				httpPost = new HttpPost(formElement.absUrl("action"));
+				httpPost.setHeader("Content-Type", "application/x-www-form-urlencoded");
+				String entityString = URLEncodedUtils.format(nvpList, "UTF-8");
+				System.out.println(entityString);
+				entity = new StringEntity(entityString);
+				httpPost.setEntity(entity);
+
+				response = httpClient.execute(httpPost);
+				System.out.println(response.getStatusLine());
+				Assert.assertEquals(200, response.getStatusLine().getStatusCode());
+				httpEntity = response.getEntity();
+				// printEntity(httpEntity);
+				EntityUtils.consume(httpEntity);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -474,7 +528,7 @@ public class HttpClientTest {
 	public void checkCardCid(Element aElement, String aCid) {
 		Elements aes = aElement.select("a[href*=card_detail.php][href*=card_sid]");
 		Assert.assertEquals(1, aes.size());
-		aes.attr("href").contains("card_sid%3D" + aCid);
+		Assert.assertTrue(aes.attr("href").contains("card_sid%3D" + aCid));
 		Elements labels = aElement.select("label[for]");
 		Assert.assertTrue(labels.size() >= 1);
 		for (Element e : labels) {

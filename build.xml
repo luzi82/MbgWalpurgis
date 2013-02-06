@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="MbgWalpurgis" default="build" basedir=".">
+    <target name="import">
+        <ant dir="_import" />
+    </target>
+    <target name="test" depends="import">
+        <ant dir="LibMbgWalpurgisTest" target="test" />
+        <ant dir="XmmpNotifierTest" target="test" />
+    </target>
+    <target name="build" depends="import">
+        <ant dir="LibMbgWalpurgis" />
+        <ant dir="XmmpNotifier" />
+    </target>
+    <target name="clean">
+        <ant dir="_import" target="clean" />
+        <ant dir="LibMbgWalpurgis" target="clean" />
+        <ant dir="LibMbgWalpurgisTest" target="clean" />
+        <ant dir="LibMbgWalpurgisTest" target="cleanreport" />
+        <ant dir="XmmpNotifier" target="clean" />
+        <ant dir="XmmpNotifierTest" target="clean" />
+        <ant dir="XmmpNotifierTest" target="cleanreport" />
+        </target>
+</project>

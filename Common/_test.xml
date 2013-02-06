@@ -2,7 +2,7 @@
 <project basedir="." default="test" name="_test">
     <target name="test" depends="build">
         <mkdir dir="${junit.output.dir}"/>
-        <junit fork="yes" printsummary="withOutAndErr">
+        <junit fork="yes" dir="." printsummary="withOutAndErr" haltonfailure="yes">
             <formatter type="xml"/>
             <classpath refid="${cprefid}"/>
             <batchtest todir="${junit.output.dir}">

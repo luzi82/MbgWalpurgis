@@ -10,8 +10,8 @@
     <property name="Common.location" value="../Common"/>
     <property name="LibMbgWalpurgis.location" value="../LibMbgWalpurgis"/>
     <property name="debuglevel" value="source,lines,vars"/>
-    <property name="target" value="1.6"/>
-    <property name="source" value="1.6"/>
+    <property name="target" value="1.7"/>
+    <property name="source" value="1.7"/>
     <path id="LibMbgWalpurgis.classpath">
         <pathelement location="${LibMbgWalpurgis.location}/bin"/>
         <pathelement location="${_import.location}/output/httpcomponents-client-4.2.3/lib/commons-codec-1.6.jar"/>

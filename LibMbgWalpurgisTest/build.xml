@@ -3,15 +3,15 @@
               Any modifications will be overwritten.
               To include a user specific buildfile here, simply create one in the same
               directory with the processing instruction <?eclipse.ant.import?>
-              as the first entry and export the buildfile again. --><project basedir="." default="build" name="XmmpNotifier">
+              as the first entry and export the buildfile again. --><project basedir="." default="build" name="LibMbgWalpurgisTest">
     <property environment="env"/>
     <property name="_import.location" value="../_import"/>
-    <property name="XmmpNotifierTest.location" value="../XmmpNotifierTest"/>
+    <property name="junit.output.dir" value="junit"/>
     <property name="Common.location" value="../Common"/>
     <property name="LibMbgWalpurgis.location" value="../LibMbgWalpurgis"/>
     <property name="debuglevel" value="source,lines,vars"/>
-    <property name="target" value="1.6"/>
-    <property name="source" value="1.6"/>
+    <property name="target" value="1.7"/>
+    <property name="source" value="1.7"/>
     <path id="LibMbgWalpurgis.classpath">
         <pathelement location="${LibMbgWalpurgis.location}/bin"/>
         <pathelement location="${_import.location}/output/httpcomponents-client-4.2.3/lib/commons-codec-1.6.jar"/>
@@ -26,12 +26,20 @@
     <path id="Common.classpath">
         <pathelement location="${Common.location}/bin"/>
     </path>
-    <path id="XmmpNotifier.classpath">
+    <path id="LibMbgWalpurgisTest.classpath">
         <pathelement location="bin"/>
         <path refid="LibMbgWalpurgis.classpath"/>
-        <pathelement location="${_import.location}/output/smack_3_2_2/smack.jar"/>
+        <pathelement location="${_import.location}/output/httpcomponents-client-4.2.3/lib/commons-codec-1.6.jar"/>
+        <pathelement location="${_import.location}/output/httpcomponents-client-4.2.3/lib/commons-logging-1.1.1.jar"/>
+        <pathelement location="${_import.location}/output/httpcomponents-client-4.2.3/lib/fluent-hc-4.2.3.jar"/>
+        <pathelement location="${_import.location}/output/httpcomponents-client-4.2.3/lib/httpclient-4.2.3.jar"/>
+        <pathelement location="${_import.location}/output/httpcomponents-client-4.2.3/lib/httpclient-cache-4.2.3.jar"/>
+        <pathelement location="${_import.location}/output/httpcomponents-client-4.2.3/lib/httpcore-4.2.2.jar"/>
+        <pathelement location="${_import.location}/output/httpcomponents-client-4.2.3/lib/httpmime-4.2.3.jar"/>
         <path refid="Common.classpath"/>
-        <pathelement location="${_import.location}/jar/NagatoQuery.jar"/>
+        <pathelement location="${_import.location}/jar/hamcrest-all-1.3.jar"/>
+        <pathelement location="${_import.location}/jar/jsoup-1.7.2.jar"/>
+        <pathelement location="${_import.location}/jar/junit-4.11.jar"/>
     </path>
     <target name="init">
         <mkdir dir="bin"/>
@@ -57,11 +65,40 @@
         <echo message="${ant.project.name}: ${ant.file}"/>
         <javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}">
             <src path="src"/>
-            <classpath refid="XmmpNotifier.classpath"/>
+            <classpath refid="LibMbgWalpurgisTest.classpath"/>
         </javac>
     </target>
-    <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects">
-        <ant antfile="build.xml" dir="${XmmpNotifierTest.location}" inheritAll="false" target="clean"/>
-        <ant antfile="build.xml" dir="${XmmpNotifierTest.location}" inheritAll="false" target="build"/>
+    <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
+    <target name="HttpClientTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="com.luzi82.libmbgwalpurgis.HttpClientTest" todir="${junit.output.dir}"/>
+            <classpath refid="LibMbgWalpurgisTest.classpath"/>
+        </junit>
+    </target>
+    <target name="MwClientTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="com.luzi82.libmbgwalpurgis.MwClientTest" todir="${junit.output.dir}"/>
+            <classpath refid="LibMbgWalpurgisTest.classpath"/>
+        </junit>
+    </target>
+    <target name="PlayerStatusTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="com.luzi82.libmbgwalpurgis.PlayerStatusTest" todir="${junit.output.dir}"/>
+            <classpath refid="LibMbgWalpurgisTest.classpath"/>
+        </junit>
+    </target>
+    <target name="junitreport">
+        <junitreport todir="${junit.output.dir}">
+            <fileset dir="${junit.output.dir}">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report format="frames" todir="${junit.output.dir}"/>
+        </junitreport>
     </target>
 </project>

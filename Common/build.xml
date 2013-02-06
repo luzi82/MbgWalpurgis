@@ -3,25 +3,16 @@
               Any modifications will be overwritten.
               To include a user specific buildfile here, simply create one in the same
               directory with the processing instruction <?eclipse.ant.import?>
-              as the first entry and export the buildfile again. --><project basedir="." default="build" name="LibMbgWalpurgis">
+              as the first entry and export the buildfile again. --><project basedir="." default="build" name="Common">
     <property environment="env"/>
-    <property name="_import.location" value="../_import"/>
     <property name="LibMbgWalpurgisTest.location" value="../LibMbgWalpurgisTest"/>
     <property name="XmmpNotifier.location" value="../XmmpNotifier"/>
     <property name="XmmpNotifierTest.location" value="../XmmpNotifierTest"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.7"/>
     <property name="source" value="1.7"/>
-    <path id="LibMbgWalpurgis.classpath">
+    <path id="Common.classpath">
         <pathelement location="bin"/>
-        <pathelement location="${_import.location}/output/httpcomponents-client-4.2.3/lib/commons-codec-1.6.jar"/>
-        <pathelement location="${_import.location}/output/httpcomponents-client-4.2.3/lib/commons-logging-1.1.1.jar"/>
-        <pathelement location="${_import.location}/output/httpcomponents-client-4.2.3/lib/fluent-hc-4.2.3.jar"/>
-        <pathelement location="${_import.location}/output/httpcomponents-client-4.2.3/lib/httpclient-4.2.3.jar"/>
-        <pathelement location="${_import.location}/output/httpcomponents-client-4.2.3/lib/httpclient-cache-4.2.3.jar"/>
-        <pathelement location="${_import.location}/output/httpcomponents-client-4.2.3/lib/httpcore-4.2.2.jar"/>
-        <pathelement location="${_import.location}/output/httpcomponents-client-4.2.3/lib/httpmime-4.2.3.jar"/>
-        <pathelement location="${_import.location}/jar/jsoup-1.7.2.jar"/>
     </path>
     <target name="init">
         <mkdir dir="bin"/>
@@ -41,7 +32,7 @@
         <echo message="${ant.project.name}: ${ant.file}"/>
         <javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}">
             <src path="src"/>
-            <classpath refid="LibMbgWalpurgis.classpath"/>
+            <classpath refid="Common.classpath"/>
         </javac>
     </target>
     <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects">

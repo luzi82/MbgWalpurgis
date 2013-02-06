@@ -9,8 +9,6 @@
         <mkdir dir="${tmp}"/>
         
         <untar src="${in}/httpcomponents-client-4.2.3-bin.tar.gz" dest="${out}/" compression="gzip" />
-        <copy file="${in}/jsoup-1.7.2.jar" todir="${out}/jsoup" />
-        <copy file="${in}/NagatoQuery.jar" todir="${out}/NagatoQuery" />
         <untar src="${in}/smack_3_2_2.tar.gz" dest="${out}/" compression="gzip" />
         
         <delete dir="${tmp}"/>

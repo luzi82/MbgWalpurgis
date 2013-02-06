@@ -3,15 +3,16 @@
               Any modifications will be overwritten.
               To include a user specific buildfile here, simply create one in the same
               directory with the processing instruction <?eclipse.ant.import?>
-              as the first entry and export the buildfile again. --><project basedir="." default="build" name="XmmpNotifier">
+              as the first entry and export the buildfile again. --><project basedir="." default="build" name="XmmpNotifierTest">
     <property environment="env"/>
     <property name="_import.location" value="../_import"/>
-    <property name="XmmpNotifierTest.location" value="../XmmpNotifierTest"/>
+    <property name="junit.output.dir" value="junit"/>
     <property name="Common.location" value="../Common"/>
     <property name="LibMbgWalpurgis.location" value="../LibMbgWalpurgis"/>
+    <property name="XmmpNotifier.location" value="../XmmpNotifier"/>
     <property name="debuglevel" value="source,lines,vars"/>
-    <property name="target" value="1.6"/>
-    <property name="source" value="1.6"/>
+    <property name="target" value="1.7"/>
+    <property name="source" value="1.7"/>
     <path id="LibMbgWalpurgis.classpath">
         <pathelement location="${LibMbgWalpurgis.location}/bin"/>
         <pathelement location="${_import.location}/output/httpcomponents-client-4.2.3/lib/commons-codec-1.6.jar"/>
@@ -27,11 +28,20 @@
         <pathelement location="${Common.location}/bin"/>
     </path>
     <path id="XmmpNotifier.classpath">
-        <pathelement location="bin"/>
+        <pathelement location="${XmmpNotifier.location}/bin"/>
         <path refid="LibMbgWalpurgis.classpath"/>
         <pathelement location="${_import.location}/output/smack_3_2_2/smack.jar"/>
         <path refid="Common.classpath"/>
         <pathelement location="${_import.location}/jar/NagatoQuery.jar"/>
+    </path>
+    <path id="XmmpNotifierTest.classpath">
+        <pathelement location="bin"/>
+        <path refid="LibMbgWalpurgis.classpath"/>
+        <path refid="XmmpNotifier.classpath"/>
+        <pathelement location="${_import.location}/output/smack_3_2_2/smack.jar"/>
+        <path refid="Common.classpath"/>
+        <pathelement location="${_import.location}/jar/hamcrest-all-1.3.jar"/>
+        <pathelement location="${_import.location}/jar/junit-4.11.jar"/>
     </path>
     <target name="init">
         <mkdir dir="bin"/>
@@ -47,21 +57,54 @@
     <target depends="clean" name="cleanall">
         <ant antfile="build.xml" dir="${Common.location}" inheritAll="false" target="clean"/>
         <ant antfile="build.xml" dir="${LibMbgWalpurgis.location}" inheritAll="false" target="clean"/>
+        <ant antfile="build.xml" dir="${XmmpNotifier.location}" inheritAll="false" target="clean"/>
     </target>
     <target depends="build-subprojects,build-project" name="build"/>
     <target name="build-subprojects">
         <ant antfile="build.xml" dir="${Common.location}" inheritAll="false" target="build-project"/>
         <ant antfile="build.xml" dir="${LibMbgWalpurgis.location}" inheritAll="false" target="build-project"/>
+        <ant antfile="build.xml" dir="${XmmpNotifier.location}" inheritAll="false" target="build-project"/>
     </target>
     <target depends="init" name="build-project">
         <echo message="${ant.project.name}: ${ant.file}"/>
         <javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}">
             <src path="src"/>
-            <classpath refid="XmmpNotifier.classpath"/>
+            <classpath refid="XmmpNotifierTest.classpath"/>
         </javac>
     </target>
-    <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects">
-        <ant antfile="build.xml" dir="${XmmpNotifierTest.location}" inheritAll="false" target="clean"/>
-        <ant antfile="build.xml" dir="${XmmpNotifierTest.location}" inheritAll="false" target="build"/>
+    <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
+    <target name="XmppTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="com.luzi82.rbmfx.XmppTest" todir="${junit.output.dir}"/>
+            <classpath refid="XmmpNotifierTest.classpath"/>
+        </junit>
+    </target>
+    <target name="Main">
+        <java classname="com.luzi82.rbmfx.Main" failonerror="true" fork="yes">
+            <classpath refid="XmmpNotifierTest.classpath"/>
+        </java>
+    </target>
+    <target name="MwClientMgr">
+        <java classname="com.luzi82.rbmfx.MwClientMgr" failonerror="true" fork="yes">
+            <classpath refid="XmmpNotifierTest.classpath"/>
+        </java>
+    </target>
+    <target name="XmppMgrTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="com.luzi82.rbmfx.XmppMgrTest" todir="${junit.output.dir}"/>
+            <classpath refid="XmmpNotifierTest.classpath"/>
+        </junit>
+    </target>
+    <target name="junitreport">
+        <junitreport todir="${junit.output.dir}">
+            <fileset dir="${junit.output.dir}">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report format="frames" todir="${junit.output.dir}"/>
+        </junitreport>
     </target>
 </project>

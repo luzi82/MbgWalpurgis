@@ -2,10 +2,9 @@ package com.luzi82.libmbgwalpurgis;
 
 import java.io.FileInputStream;
 
-import junit.framework.Assert;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class PlayerStatusTest {

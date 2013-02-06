@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?eclipse.ant.import?>
+<project basedir="." default="none">
+    <import file="../_common.xml"/>
+    <property name="project.jar.file" value="jar/LibMbgWalpurgis.jar" />
+    <property name="project.classes.dir" value="bin" />
+    
+    <target name="jar" depends="_libjar" />
+</project>

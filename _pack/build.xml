@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<project basedir="." default="build" name="pack">
+    <target name="build" depends="pack" />
+    <target name="cleanpack">
+        <delete dir="pack"/>
+    </target>
+    <target name="pack">
+        <antcall target="cleanpack"/>
+        <mkdir dir="pack"/>
+        <copy todir="pack">
+            <fileset dir="../LibMbgWalpurgis/jar"/>
+            <fileset dir="../XmmpNotifier/jar"/>
+        </copy>
+    </target>
+</project>

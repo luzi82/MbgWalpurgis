@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project basedir="." default="test" name="_test">
+<project basedir="." default="none" name="_test">
+    <target name="none" />
     <target name="test" depends="build">
         <mkdir dir="${junit.output.dir}"/>
         <junit fork="yes" dir="." printsummary="withOutAndErr" haltonfailure="yes">

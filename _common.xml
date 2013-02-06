@@ -1,0 +1,31 @@
+<project name="_common" default="none" basedir=".">
+
+    <target name="none" />
+    
+    <dirname property="workspace.basedir" file="${ant.file._common}"/>
+    
+    <property environment="env" />
+    <property file="${workspace.basedir}/workspace.properties" />
+    
+    <condition property="workspace.full.version" value="${workspace.main.version}.${env.BUILD_NUMBER}" else="${workspace.main.version}">
+        <isset property="env.BUILD_NUMBER" />
+    </condition>
+
+    <target name="_libjar" depends="build">
+        <jar jarfile="${project.jar.file}" basedir="${project.classes.dir}">
+            <manifest>
+                <attribute name="Manifest-Version" value="${workspace.full.version}" />
+            </manifest>
+        </jar>
+    </target>
+    
+    <target name="_exejar" depends="build">
+        <jar jarfile="${project.jar.file}" basedir="${project.classes.dir}">
+            <manifest>
+                <attribute name="Manifest-Version" value="${workspace.full.version}" />
+                <attribute name="Main-Class" value="${project.main.class}" />
+            </manifest>
+        </jar>
+    </target>
+    
+</project>

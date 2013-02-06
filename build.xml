@@ -8,16 +8,26 @@
         <ant dir="XmmpNotifierTest" target="test" />
     </target>
     <target name="build" depends="import">
+        <ant dir="Common" />
         <ant dir="LibMbgWalpurgis" />
         <ant dir="XmmpNotifier" />
     </target>
+    <target name="jar" depends="build">
+        <ant dir="Common" target="jar" />
+        <ant dir="LibMbgWalpurgis" target="jar" />
+        <ant dir="XmmpNotifier" target="jar" />
+    </target>
+    <target name="pack" depends="jar">
+        <ant dir="_pack" />
+    </target>
     <target name="clean">
         <ant dir="_import" target="clean" />
+        <ant dir="Common" target="clean" />
         <ant dir="LibMbgWalpurgis" target="clean" />
         <ant dir="LibMbgWalpurgisTest" target="clean" />
         <ant dir="LibMbgWalpurgisTest" target="cleanreport" />
         <ant dir="XmmpNotifier" target="clean" />
         <ant dir="XmmpNotifierTest" target="clean" />
         <ant dir="XmmpNotifierTest" target="cleanreport" />
-        </target>
+    </target>
 </project>

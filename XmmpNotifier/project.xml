@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?eclipse.ant.import?>
+<project basedir="." default="none">
+    <import file="../_common.xml"/>
+    <property name="project.jar.file" value="jar/MbgWalpurgisXmmp.jar" />
+    <property name="project.classes.dir" value="bin" />
+    <property name="project.main.class" value="com.luzi82.rbmfx.Main" />
+    
+    <target name="jar" depends="build">
+        <jar jarfile="${project.jar.file}">
+            <fileset dir="${project.classes.dir}"/>
+            <zipgroupfileset dir="../LibMbgWalpurgis/jar" includes="*.jar"/>
+            <zipgroupfileset dir="../Common/jar" includes="*.jar"/>
+            <zipgroupfileset dir="../_import/jar" includes="jsoup-1.7.2.jar"/>
+            <zipgroupfileset dir="../_import/jar" includes="NagatoQuery.jar"/>
+            <zipgroupfileset dir="../_import/output/httpcomponents-client-4.2.3/lib" includes="*.jar"/>
+            <zipgroupfileset dir="../_import/output/smack_3_2_2" includes="smack.jar"/>
+            <zipgroupfileset dir="../_import/output/smack_3_2_2" includes="smackx.jar"/>
+            <manifest>
+                <attribute name="Manifest-Version" value="${workspace.full.version}" />
+                <attribute name="Main-Class" value="${project.main.class}" />
+            </manifest>
+        </jar>
+    </target>
+</project>

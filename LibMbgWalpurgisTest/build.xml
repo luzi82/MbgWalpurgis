@@ -12,6 +12,7 @@
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.7"/>
     <property name="source" value="1.7"/>
+    <import file="test.xml"/>
     <path id="LibMbgWalpurgis.classpath">
         <pathelement location="${LibMbgWalpurgis.location}/bin"/>
         <pathelement location="${_import.location}/output/httpcomponents-client-4.2.3/lib/commons-codec-1.6.jar"/>
@@ -69,27 +70,16 @@
         </javac>
     </target>
     <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
-    <target name="HttpClientTest">
+    <target name="LibMbgWalpurgisTest">
         <mkdir dir="${junit.output.dir}"/>
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
+            <test name="com.luzi82.libmbgwalpurgis.AsynListTest" todir="${junit.output.dir}"/>
+            <test name="com.luzi82.libmbgwalpurgis.CallCountTest" todir="${junit.output.dir}"/>
             <test name="com.luzi82.libmbgwalpurgis.HttpClientTest" todir="${junit.output.dir}"/>
-            <classpath refid="LibMbgWalpurgisTest.classpath"/>
-        </junit>
-    </target>
-    <target name="MwClientTest">
-        <mkdir dir="${junit.output.dir}"/>
-        <junit fork="yes" printsummary="withOutAndErr">
-            <formatter type="xml"/>
             <test name="com.luzi82.libmbgwalpurgis.MwClientTest" todir="${junit.output.dir}"/>
-            <classpath refid="LibMbgWalpurgisTest.classpath"/>
-        </junit>
-    </target>
-    <target name="PlayerStatusTest">
-        <mkdir dir="${junit.output.dir}"/>
-        <junit fork="yes" printsummary="withOutAndErr">
-            <formatter type="xml"/>
             <test name="com.luzi82.libmbgwalpurgis.PlayerStatusTest" todir="${junit.output.dir}"/>
+            <test name="com.luzi82.libmbgwalpurgis.RaidBossMatchingFeedTest" todir="${junit.output.dir}"/>
             <classpath refid="LibMbgWalpurgisTest.classpath"/>
         </junit>
     </target>

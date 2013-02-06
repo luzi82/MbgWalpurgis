@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?eclipse.ant.import?>
+<project basedir="." default="test" name="XmmpNotifierTest.test">
+    <property name="cprefid" value="XmmpNotifierTest.classpath" />
+    <import file="../Common/_test.xml"/>
+</project>

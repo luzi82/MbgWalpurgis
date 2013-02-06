@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?eclipse.ant.import?>
+<project basedir="." default="test" name="LibMbgWalpurgisTest.test">
+    <property name="cprefid" value="LibMbgWalpurgisTest.classpath" />
+    <import file="../Common/_test.xml"/>
+</project>

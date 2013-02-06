@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="test" name="_test">
+    <target name="test" depends="build">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <classpath refid="${cprefid}"/>
+            <batchtest todir="${junit.output.dir}">
+                <fileset dir="src">
+                    <include name="**/*Test.java"/>
+                </fileset>
+            </batchtest>
+        </junit>
+    </target>
+    <target name="testreport" depends="test,junitreport"/>
+    <target name="cleanreport">
+        <delete dir="${junit.output.dir}"/>
+    </target>
+</project>

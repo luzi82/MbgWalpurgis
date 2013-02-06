@@ -7,7 +7,7 @@ import org.junit.BeforeClass;
 
 import com.luzi82.libmbgwalpurgis.common.Prop;
 
-public class MwClientTest extends AbstractMwClientTest {
+public class MwClientTest extends AbstractMwClientTestX {
 
 	static Properties props;
 

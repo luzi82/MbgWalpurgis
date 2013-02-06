@@ -32,6 +32,7 @@
         <pathelement location="${_import.location}/output/smack_3_2_2/smack.jar"/>
         <path refid="Common.classpath"/>
         <pathelement location="${_import.location}/jar/NagatoQuery.jar"/>
+        <pathelement location="${_import.location}/output/smack_3_2_2/smackx.jar"/>
     </path>
     <target name="init">
         <mkdir dir="bin"/>

@@ -13,6 +13,7 @@
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.7"/>
     <property name="source" value="1.7"/>
+    <import file="test.xml"/>
     <path id="LibMbgWalpurgis.classpath">
         <pathelement location="${LibMbgWalpurgis.location}/bin"/>
         <pathelement location="${_import.location}/output/httpcomponents-client-4.2.3/lib/commons-codec-1.6.jar"/>
@@ -33,6 +34,7 @@
         <pathelement location="${_import.location}/output/smack_3_2_2/smack.jar"/>
         <path refid="Common.classpath"/>
         <pathelement location="${_import.location}/jar/NagatoQuery.jar"/>
+        <pathelement location="${_import.location}/output/smack_3_2_2/smackx.jar"/>
     </path>
     <path id="XmmpNotifierTest.classpath">
         <pathelement location="bin"/>
@@ -42,6 +44,7 @@
         <path refid="Common.classpath"/>
         <pathelement location="${_import.location}/jar/hamcrest-all-1.3.jar"/>
         <pathelement location="${_import.location}/jar/junit-4.11.jar"/>
+        <pathelement location="${_import.location}/output/smack_3_2_2/smackx.jar"/>
     </path>
     <target name="init">
         <mkdir dir="bin"/>
@@ -73,14 +76,6 @@
         </javac>
     </target>
     <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
-    <target name="XmppTest">
-        <mkdir dir="${junit.output.dir}"/>
-        <junit fork="yes" printsummary="withOutAndErr">
-            <formatter type="xml"/>
-            <test name="com.luzi82.rbmfx.XmppTest" todir="${junit.output.dir}"/>
-            <classpath refid="XmmpNotifierTest.classpath"/>
-        </junit>
-    </target>
     <target name="Main">
         <java classname="com.luzi82.rbmfx.Main" failonerror="true" fork="yes">
             <classpath refid="XmmpNotifierTest.classpath"/>
@@ -91,11 +86,12 @@
             <classpath refid="XmmpNotifierTest.classpath"/>
         </java>
     </target>
-    <target name="XmppMgrTest">
+    <target name="XmmpNotifierTest">
         <mkdir dir="${junit.output.dir}"/>
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
             <test name="com.luzi82.rbmfx.XmppMgrTest" todir="${junit.output.dir}"/>
+            <test name="com.luzi82.rbmfx.XmppTest" todir="${junit.output.dir}"/>
             <classpath refid="XmmpNotifierTest.classpath"/>
         </junit>
     </target>

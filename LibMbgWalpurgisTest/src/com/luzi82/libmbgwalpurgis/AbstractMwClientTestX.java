@@ -5,7 +5,7 @@ import org.junit.Test;
 
 import com.luzi82.libmbgwalpurgis.IMwClient;
 
-public abstract class AbstractMwClientTest {
+public abstract class AbstractMwClientTestX {
 
 	@Test
 	public void testConnect() {

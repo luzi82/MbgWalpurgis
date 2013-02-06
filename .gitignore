@@ -6,3 +6,5 @@
 /XmmpNotifierTest/bin/
 *.old
 *~
+auth.properties
+

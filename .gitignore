@@ -1,3 +1,8 @@
-.metadata/
+/.metadata/
 /LibMbgWalpurgis/bin/
+/LibMbgWalpurgisTest/bin/
+/NagatoQuery/
+/XmmpNotifier/bin/
+/XmmpNotifierTest/bin/
 *.old
+*~

@@ -15,6 +15,7 @@ import com.luzi82.libmbgwalpurgis.MwClient;
 import com.luzi82.libmbgwalpurgis.PlayerStatus;
 import com.luzi82.libmbgwalpurgis.RaidBossMatchingFeed;
 import com.luzi82.libmbgwalpurgis.RaidBossMatchingFeed.Unit;
+import com.luzi82.libmbgwalpurgis.common.Prop;
 import com.luzi82.libmbgwalpurgis.Utils;
 
 public class MwClientMgr {
@@ -229,10 +230,11 @@ public class MwClientMgr {
 	 */
 	public static void main(String[] args) {
 		try {
-			Properties props = new Properties();
-			FileInputStream authFileIn = new FileInputStream("auth.properties");
-			props.load(authFileIn);
-			authFileIn.close();
+//			Properties props = new Properties();
+//			FileInputStream authFileIn = new FileInputStream("auth.properties");
+//			props.load(authFileIn);
+//			authFileIn.close();
+			Properties props=Prop.getAuthProperties();
 
 			MwClientMgr main = new MwClientMgr(new ScheduledThreadPoolExecutor(10), props.getProperty("login_id"), props.getProperty("login_pw"));
 			main.setUnitCallback(new ICallback<RaidBossMatchingFeed.Unit>() {

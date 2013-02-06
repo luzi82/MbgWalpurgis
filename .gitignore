@@ -4,6 +4,7 @@
 /NagatoQuery/
 /XmmpNotifier/bin/
 /XmmpNotifierTest/bin/
+/Common/bin/
 *.old
 *~
 auth.properties

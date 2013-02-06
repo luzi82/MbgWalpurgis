@@ -42,6 +42,8 @@ import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 import org.junit.Test;
 
+import com.luzi82.libmbgwalpurgis.common.Prop;
+
 public class HttpClientTest {
 
 	final String[] ALL_RANK = { "N", "N+", "R", "R+", "SR", "SR+" };
@@ -53,10 +55,11 @@ public class HttpClientTest {
 	@Test
 	public void testAccess() {
 		try {
-			Properties props = new Properties();
-			FileInputStream authFileIn = new FileInputStream("auth.properties");
-			props.load(authFileIn);
-			authFileIn.close();
+//			Properties props = new Properties();
+//			FileInputStream authFileIn = new FileInputStream("auth.properties");
+//			props.load(authFileIn);
+//			authFileIn.close();
+			Properties props=Prop.getAuthProperties();
 
 			HttpParams httpParams = new BasicHttpParams();
 			httpParams.setParameter(CoreProtocolPNames.USER_AGENT, "Mozilla/5.0 (Linux; U; Android 4.0.2; en-us; Galaxy Nexus Build/ICL53F) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30");

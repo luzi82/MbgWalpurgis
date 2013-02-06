@@ -6,5 +6,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/XmmpNotifier"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="/_import/output/smack_3_2_2/smack.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Common"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

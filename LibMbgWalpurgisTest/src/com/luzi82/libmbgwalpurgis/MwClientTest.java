@@ -6,6 +6,8 @@ import java.util.concurrent.Executors;
 
 import org.junit.BeforeClass;
 
+import com.luzi82.libmbgwalpurgis.common.Prop;
+
 public class MwClientTest extends AbstractMwClientTest {
 
 	static Properties props;
@@ -13,11 +15,12 @@ public class MwClientTest extends AbstractMwClientTest {
 	@BeforeClass
 	public static void oneTimeSetUp() {
 		try {
-			props = new Properties();
-			FileInputStream authFileIn;
-			authFileIn = new FileInputStream("auth.properties");
-			props.load(authFileIn);
-			authFileIn.close();
+//			props = new Properties();
+//			FileInputStream authFileIn;
+//			authFileIn = new FileInputStream("auth.properties");
+//			props.load(authFileIn);
+//			authFileIn.close();
+			Properties props=Prop.getAuthProperties();
 		} catch (Exception e) {
 			throw new Error(e);
 		}

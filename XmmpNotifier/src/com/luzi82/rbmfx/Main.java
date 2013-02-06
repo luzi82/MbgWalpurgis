@@ -8,6 +8,7 @@ import com.luzi82.libmbgwalpurgis.ICallback;
 import com.luzi82.libmbgwalpurgis.PlayerStatus;
 import com.luzi82.libmbgwalpurgis.RaidBossMatchingFeed;
 import com.luzi82.libmbgwalpurgis.RaidBossMatchingFeed.Unit;
+import com.luzi82.libmbgwalpurgis.common.Prop;
 import com.luzi82.nagatoquery.NagatoQuery;
 import com.luzi82.nagatoquery.NqSession;
 import com.luzi82.nagatoquery.NqSession.CommandListener;
@@ -100,10 +101,11 @@ public class Main {
 
 	public static void main(String[] argv) {
 		try {
-			Properties props = new Properties();
-			FileInputStream authFileIn = new FileInputStream("auth.properties");
-			props.load(authFileIn);
-			authFileIn.close();
+//			Properties props = new Properties();
+//			FileInputStream authFileIn = new FileInputStream("auth.properties");
+//			props.load(authFileIn);
+//			authFileIn.close();
+			Properties props=Prop.getAuthProperties();
 
 			mMain = new Main(new ScheduledThreadPoolExecutor(10), props.getProperty("login_id"), props.getProperty("login_pw"), props.getProperty("xmpp_from_id"), props.getProperty("xmpp_from_pw"), props.getProperty("xmpp_to_id"));
 			mMain.start();

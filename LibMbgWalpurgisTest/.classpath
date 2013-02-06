@@ -12,5 +12,6 @@
 	<classpathentry kind="lib" path="/_import/output/httpcomponents-client-4.2.3/lib/httpclient-cache-4.2.3.jar"/>
 	<classpathentry kind="lib" path="/_import/output/httpcomponents-client-4.2.3/lib/httpcore-4.2.2.jar"/>
 	<classpathentry kind="lib" path="/_import/output/httpcomponents-client-4.2.3/lib/httpmime-4.2.3.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Common"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

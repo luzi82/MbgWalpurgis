@@ -11,15 +11,18 @@ import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.packet.Message;
 import org.junit.Test;
 
+import com.luzi82.libmbgwalpurgis.common.Prop;
+
 public class XmppTest {
 
 	@Test
 	public void test() {
 		try {
-			Properties props = new Properties();
-			FileInputStream authFileIn = new FileInputStream("auth.properties");
-			props.load(authFileIn);
-			authFileIn.close();
+//			Properties props = new Properties();
+//			FileInputStream authFileIn = new FileInputStream("auth.properties");
+//			props.load(authFileIn);
+//			authFileIn.close();
+			Properties props=Prop.getAuthProperties();
 
 			String xmpp_from_id = props.getProperty("xmpp_from_id");
 			String xmpp_from_pw = props.getProperty("xmpp_from_pw");

@@ -1,0 +1,14 @@
+# Mobage acc ID
+login_id=mobage_acc@email.com
+
+# Mobage acc password
+login_pw=password
+
+# XMPP acc to send msg
+xmpp_from_id=xmpp_sender@server.com
+
+# password of xmpp_from_id 
+xmpp_from_pw=password
+
+# XMPP acc to receiver msg
+xmpp_to_id=xmpp_recv@server.com

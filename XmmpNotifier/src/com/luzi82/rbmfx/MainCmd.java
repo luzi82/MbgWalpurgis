@@ -1,6 +1,7 @@
 package com.luzi82.rbmfx;
 
 import com.luzi82.libmbgwalpurgis.ICallback;
+import com.luzi82.libmbgwalpurgis.Utils;
 import com.luzi82.nagatoquery.NqExec.CommandHandler;
 
 public class MainCmd {
@@ -61,6 +62,11 @@ public class MainCmd {
 				aResult.printStackTrace();
 			}
 		});
+	}
+	
+	public static void cmd_status(CommandHandler aHandler) {
+		Utils.startCallback(Main.mMain.mMw.mPlayerStatusCallback, Main.mMain.mMw.mLastPlayerStatus, Main.mMain.mMw.mExecutor);
+		aHandler.mCommandListener.commandReturn(null);
 	}
 
 }

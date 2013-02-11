@@ -47,7 +47,7 @@ public class MwClientMgr {
 	public synchronized void start() {
 		if (mMaintainScheduledFuture != null)
 			return;
-		mMaintainScheduledFuture = mExecutor.scheduleAtFixedRate(new MaintainRunnable(), 0, 15, TimeUnit.SECONDS);
+		mMaintainScheduledFuture = mExecutor.scheduleAtFixedRate(new MaintainRunnable(), 0, mMaintainPeriod, TimeUnit.SECONDS);
 	}
 
 	public synchronized void stop() {

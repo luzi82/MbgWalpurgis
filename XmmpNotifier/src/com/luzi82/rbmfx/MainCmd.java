@@ -25,6 +25,15 @@ public class MainCmd {
 		aHandler.mCommandListener.commandReturn(Integer.toString(freq));
 	}
 
+	public static void cmd_pollsecset(CommandHandler aHandler, int aSec) {
+		Main.mMain.mMw.setMaintainPeriod(aSec);
+		aHandler.mCommandListener.commandReturn(null);
+	}
+
+	public static void cmd_pollsec(CommandHandler aHandler) {
+		aHandler.mCommandListener.commandReturn(Integer.toString(Main.mMain.mMw.getMaintainPeriod()));
+	}
+
 	public static void cmd_msgstart(CommandHandler aHandler) {
 		Main.mMain.mMsgEnabled = true;
 		aHandler.mCommandListener.commandReturn(null);
@@ -63,7 +72,7 @@ public class MainCmd {
 			}
 		});
 	}
-	
+
 	public static void cmd_status(CommandHandler aHandler) {
 		Utils.startCallback(Main.mMain.mMw.mPlayerStatusCallback, Main.mMain.mMw.mLastPlayerStatus, Main.mMain.mMw.mExecutor);
 		aHandler.mCommandListener.commandReturn(null);

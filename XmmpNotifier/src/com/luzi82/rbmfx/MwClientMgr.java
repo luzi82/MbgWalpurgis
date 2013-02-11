@@ -31,6 +31,7 @@ public class MwClientMgr {
 	boolean mLastExpUp = false;
 	boolean mLastFullCard = false;
 	public float mLp2Exp = 7.5f;
+	int mMaintainPeriod = 15;
 
 	LinkedList<Long> mPollTime = new LinkedList<Long>();
 
@@ -54,6 +55,18 @@ public class MwClientMgr {
 			return;
 		mMaintainScheduledFuture.cancel(false);
 		mMaintainScheduledFuture = null;
+	}
+
+	public synchronized void setMaintainPeriod(int aSeconds) {
+		mMaintainPeriod = aSeconds;
+		if (mMaintainScheduledFuture != null) {
+			stop();
+			start();
+		}
+	}
+	
+	public int getMaintainPeriod(){
+		return mMaintainPeriod;
 	}
 
 	long mLastRest = 0;
@@ -229,7 +242,7 @@ public class MwClientMgr {
 	 */
 	public static void main(String[] args) {
 		try {
-			Properties props=Prop.getAuthProperties();
+			Properties props = Prop.getAuthProperties();
 
 			MwClientMgr main = new MwClientMgr(new ScheduledThreadPoolExecutor(10), props.getProperty("login_id"), props.getProperty("login_pw"));
 			main.setUnitCallback(new ICallback<RaidBossMatchingFeed.Unit>() {

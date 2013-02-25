@@ -9,8 +9,8 @@
     <property name="XmmpNotifier.location" value="../XmmpNotifier"/>
     <property name="XmmpNotifierTest.location" value="../XmmpNotifierTest"/>
     <property name="debuglevel" value="source,lines,vars"/>
-    <property name="target" value="1.7"/>
-    <property name="source" value="1.7"/>
+    <property name="target" value="1.6"/>
+    <property name="source" value="1.6"/>
     <import file="project.xml"/>
     <path id="Common.classpath">
         <pathelement location="bin"/>

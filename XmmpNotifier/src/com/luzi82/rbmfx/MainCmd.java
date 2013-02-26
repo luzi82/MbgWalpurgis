@@ -44,6 +44,11 @@ public class MainCmd {
 		aHandler.mCommandListener.commandReturn(null);
 	}
 
+	public static void cmd_autobp0set(CommandHandler aHandler, boolean aValue) {
+		Main.mMain.mMw.mAutoBp0 = aValue;
+		aHandler.mCommandListener.commandReturn(null);
+	}
+
 	public static void cmd_msg(CommandHandler aHandler) {
 		aHandler.mCommandListener.commandReturn(Boolean.toString(Main.mMain.mMsgEnabled));
 	}

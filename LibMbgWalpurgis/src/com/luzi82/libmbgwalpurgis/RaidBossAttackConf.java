@@ -8,11 +8,11 @@ import org.jsoup.select.Elements;
 
 public class RaidBossAttackConf {
 
-	boolean mBp0Ok;
+	public boolean mBp0Ok;
 
-	String mBp1Url;
+	public String mBp1Url;
 
-	String mBp3Url;
+	public String mBp3Url;
 
 	public static RaidBossAttackConf toRaidBossAttackConf(Document aDocument) throws ParseException {
 		RaidBossAttackConf ret = new RaidBossAttackConf();

@@ -12,6 +12,7 @@ import com.luzi82.libmbgwalpurgis.IMwClient;
 import com.luzi82.libmbgwalpurgis.IMwClient.State;
 import com.luzi82.libmbgwalpurgis.MwClient;
 import com.luzi82.libmbgwalpurgis.PlayerStatus;
+import com.luzi82.libmbgwalpurgis.RaidBossAttackConf;
 import com.luzi82.libmbgwalpurgis.RaidBossMatchingFeed;
 import com.luzi82.libmbgwalpurgis.RaidBossMatchingFeed.Unit;
 import com.luzi82.libmbgwalpurgis.Utils;
@@ -32,6 +33,7 @@ public class MwClientMgr {
 	boolean mLastFullCard = false;
 	public float mLp2Exp = 7.5f;
 	int mMaintainPeriod = 15;
+	boolean mAutoBp0 = false;
 
 	LinkedList<Long> mPollTime = new LinkedList<Long>();
 
@@ -64,8 +66,8 @@ public class MwClientMgr {
 			start();
 		}
 	}
-	
-	public int getMaintainPeriod(){
+
+	public int getMaintainPeriod() {
 		return mMaintainPeriod;
 	}
 
@@ -142,6 +144,23 @@ public class MwClientMgr {
 
 					}
 				}, new ExceptionCallback());
+				if (mAutoBp0) {
+					markPollTime();
+					mMwClient.getAttackConf(new ICallback<RaidBossAttackConf>() {
+						@Override
+						public void callback(RaidBossAttackConf aResult) {
+							if (!aResult.mBp0Ok)
+								return;
+							markPollTime();
+							mMwClient.attack(aResult, IMwClient.AttackType.BP1, new ICallback<Void>() {
+								@Override
+								public void callback(Void aResult) {
+									// nothing
+								}
+							}, new ExceptionCallback());
+						}
+					}, new ExceptionCallback());
+				}
 			}
 		}
 	}
@@ -185,7 +204,7 @@ public class MwClientMgr {
 			if (mExceptionListener != null) {
 				mExceptionListener.callback(aResult);
 			}
-//			maintain();
+			// maintain();
 		}
 	}
 

@@ -185,7 +185,7 @@ public class MwClientMgr {
 			if (mExceptionListener != null) {
 				mExceptionListener.callback(aResult);
 			}
-			maintain();
+//			maintain();
 		}
 	}
 

@@ -32,7 +32,11 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import com.luzi82.libmbgwalpurgis.IMwClient.AttackType;
+
 public class MwClient implements IMwClient {
+
+	public static final String ATTACK_CONF_URL = "http://sp.pf.mbga.jp/12012090/?url=http%3A%2F%2Fmadoka2.sp.nextory.co.jp%2Fraid_boss_attack_conf.php";
 
 	final Executor mExecutor;
 
@@ -82,6 +86,16 @@ public class MwClient implements IMwClient {
 		mStateOp.burnBronze(aCallback, aExceptionCallback);
 	}
 
+	@Override
+	public void getAttackConf(ICallback<RaidBossAttackConf> aCallback, ICallback<Exception> aExceptionCallback) {
+		mStateOp.getAttackConf(aCallback, aExceptionCallback);
+	}
+
+	@Override
+	public void attack(RaidBossAttackConf aAttackConf, AttackType aAttackType, ICallback<Void> aCallback, ICallback<Exception> aExceptionCallback) {
+		mStateOp.attack(aAttackConf, aAttackType, aCallback, aExceptionCallback);
+	}
+
 	public void notifyChangeCallback() {
 		Utils.startCallback(mStateChangeCallback, mStateOp.getState(), mExecutor);
 	}
@@ -128,6 +142,16 @@ public class MwClient implements IMwClient {
 
 		@Override
 		public void burnBronze(ICallback<Void> aCallback, ICallback<Exception> aExceptionCallback) {
+			Utils.startCallback(aExceptionCallback, new IllegalStateException(), mExecutor);
+		}
+
+		@Override
+		public void getAttackConf(ICallback<RaidBossAttackConf> aCallback, ICallback<Exception> aExceptionCallback) {
+			Utils.startCallback(aExceptionCallback, new IllegalStateException(), mExecutor);
+		}
+
+		@Override
+		public void attack(RaidBossAttackConf aAttackConf, AttackType aAttackType, ICallback<Void> aCallback, ICallback<Exception> aExceptionCallback) {
 			Utils.startCallback(aExceptionCallback, new IllegalStateException(), mExecutor);
 		}
 	}
@@ -206,6 +230,38 @@ public class MwClient implements IMwClient {
 		public void burnBronze(ICallback<Void> aCallback, ICallback<Exception> aExceptionCallback) {
 			BurnBronzeOp bbo = new BurnBronzeOp(MwClient.this, mHttpClient);
 			bbo.start(aCallback, aExceptionCallback);
+		}
+
+		@Override
+		public void getAttackConf(ICallback<RaidBossAttackConf> aCallback, final ICallback<Exception> aExceptionCallback) {
+			final AsynList asynList = new AsynList();
+			asynList.addCallback(new ICallback<Void>() {
+				@Override
+				public void callback(Void aV) {
+					HttpGet httpGet = new HttpGet(ATTACK_CONF_URL);
+					httpDoc(mHttpClient, httpGet, asynList.createStartNextCallback(new Document[0]), aExceptionCallback);
+				}
+			});
+			asynList.addCallback(RaidBossAttackConf.toRaidBossAttackConf(asynList.createStartNextCallback(new RaidBossAttackConf[0]), aExceptionCallback, mExecutor));
+			asynList.addCallback(aCallback);
+			asynList.start(mExecutor);
+		}
+
+		@Override
+		public void attack(RaidBossAttackConf aAttackConf, AttackType aAttackType, ICallback<Void> aCallback, final ICallback<Exception> aExceptionCallback) {
+			String url = (aAttackType == AttackType.BP1) ? aAttackConf.mBp1Url : (aAttackType == AttackType.BP3) ? aAttackConf.mBp3Url : null;
+			if (url == null)
+				aExceptionCallback.callback(new IllegalArgumentException());
+			final AsynList asynList = new AsynList();
+			asynList.addCallback(new ICallback<Void>() {
+				@Override
+				public void callback(Void aV) {
+					HttpGet httpGet = new HttpGet(ATTACK_CONF_URL);
+					httpDoc(mHttpClient, httpGet, asynList.createStartNextCallback(new Document[0]), aExceptionCallback);
+				}
+			});
+			asynList.addCallback(aCallback, null);
+			asynList.start(mExecutor);
 		}
 	}
 

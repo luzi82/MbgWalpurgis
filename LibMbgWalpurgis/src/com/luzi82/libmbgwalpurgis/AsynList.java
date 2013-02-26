@@ -22,6 +22,15 @@ public class AsynList extends LinkedList<ICallback<Object>> {
 		});
 	}
 
+	public <T> void addCallback(final ICallback<T> aCb, final T aVal) {
+		add(new ICallback<Object>() {
+			@Override
+			public void callback(Object aResult) {
+				aCb.callback(aVal);
+			}
+		});
+	}
+
 	public void addRunnable(final Runnable aRunnable) {
 		add(new ICallback<Object>() {
 			@Override

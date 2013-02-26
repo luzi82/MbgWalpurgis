@@ -32,8 +32,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import com.luzi82.libmbgwalpurgis.IMwClient.AttackType;
-
 public class MwClient implements IMwClient {
 
 	public static final String ATTACK_CONF_URL = "http://sp.pf.mbga.jp/12012090/?url=http%3A%2F%2Fmadoka2.sp.nextory.co.jp%2Fraid_boss_attack_conf.php";

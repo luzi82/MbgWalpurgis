@@ -247,14 +247,14 @@ public class MwClient implements IMwClient {
 
 		@Override
 		public void attack(RaidBossAttackConf aAttackConf, AttackType aAttackType, ICallback<Void> aCallback, final ICallback<Exception> aExceptionCallback) {
-			String url = (aAttackType == AttackType.BP1) ? aAttackConf.mBp1Url : (aAttackType == AttackType.BP3) ? aAttackConf.mBp3Url : null;
+			final String url = (aAttackType == AttackType.BP1) ? aAttackConf.mBp1Url : (aAttackType == AttackType.BP3) ? aAttackConf.mBp3Url : null;
 			if (url == null)
 				aExceptionCallback.callback(new IllegalArgumentException());
 			final AsynList asynList = new AsynList();
 			asynList.addCallback(new ICallback<Void>() {
 				@Override
 				public void callback(Void aV) {
-					HttpGet httpGet = new HttpGet(ATTACK_CONF_URL);
+					HttpGet httpGet = new HttpGet(url);
 					httpDoc(mHttpClient, httpGet, asynList.createStartNextCallback(new Document[0]), aExceptionCallback);
 				}
 			});
